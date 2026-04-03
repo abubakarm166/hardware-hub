@@ -134,6 +134,7 @@ Then set `API_URL` on Vercel to that API’s base URL.
 | **`/book-repair` build timeout (~60s) / “Failed to build … after 3 attempts”** | Your Vercel build is using an **old Git commit** that still called `localhost` for the API. **Push the latest `main`** from this repo (includes `frontend/src/lib/api.ts` — no API URL in production = no hang). In Vercel logs, check the **commit hash** matches GitHub’s latest. |
 | Build fails (other) | In Vercel build logs, confirm Root Directory is `frontend` and Node version is 18+ (Vercel default is fine). |
 | Site loads but no catalog / contact errors | `API_URL` wrong or API down; check Django URL and CORS. |
+| **Contact form `POST /api/contact` returns 500** | Usually the **Django** backend erroring (check API deployment logs). **Run migrations** on production (`python manage.py migrate`) so `ContactMessage` exists. Use **PostgreSQL** (or a writable DB) on serverless — SQLite often fails. |
 | 404 on old deployment | Trigger a fresh deploy from the latest `main` branch. |
 
 ---
