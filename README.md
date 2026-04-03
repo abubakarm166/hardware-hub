@@ -68,7 +68,7 @@ python manage.py runserver
 Typical setup (adjust names/regions):
 
 1. **Frontend:** Deploy `frontend/` to [Vercel](https://vercel.com) or similar — set root to `frontend`, build `npm run build`, output Next default.
-2. **Backend:** Deploy `backend/` to [Railway](https://railway.app), [Render](https://render.com), or AWS Elastic Beanstalk — run `gunicorn config.wsgi:application`, set env vars from `.env.example`, attach a managed PostgreSQL instance.
+2. **Backend:** Deploy `backend/` to [Railway](https://railway.app), [Render](https://render.com), or AWS Elastic Beanstalk — run `gunicorn config.wsgi:application`, set env vars from `backend/.env.example`, attach **PostgreSQL**. On **Vercel serverless for Django**, set **`DATABASE_URL`** to Postgres (SQLite will raise **`OperationalError`** — no writable DB file).
 3. **Environment:** Set `DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` to your staging domains; set `DJANGO_DEBUG=false` and a strong `DJANGO_SECRET_KEY`.
 4. **SSL:** Enforce HTTPS at the host (Vercel/Railway provide certificates).
 

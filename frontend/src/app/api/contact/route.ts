@@ -11,7 +11,18 @@ type Body = {
   message?: string;
 };
 
+const DB_ERROR_HINT =
+  "The API could not use its database. On Vercel, SQLite does not work — add a PostgreSQL DATABASE_URL (e.g. Neon or Supabase), set it on the Django project, run migrations, then redeploy.";
+
 function safeJson(text: string): Record<string, unknown> {
+  const t = text.trim();
+  if (t.startsWith("<!DOCTYPE") || t.startsWith("<html")) {
+    const isDb =
+      /OperationalError|ProgrammingError|could not connect|database is locked/i.test(t);
+    return {
+      detail: isDb ? DB_ERROR_HINT : "The API returned an error page instead of JSON. Set DJANGO_DEBUG=false in production and check API logs.",
+    };
+  }
   try {
     const parsed = JSON.parse(text) as unknown;
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
@@ -20,7 +31,7 @@ function safeJson(text: string): Record<string, unknown> {
     return { detail: String(parsed) };
   } catch {
     return {
-      detail: text.slice(0, 500) || "Non-JSON response from API",
+      detail: text.slice(0, 300) || "Non-JSON response from API",
     };
   }
 }

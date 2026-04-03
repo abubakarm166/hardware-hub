@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -70,7 +71,17 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 USE_SQLITE = os.environ.get("USE_SQLITE", "true").lower() in ("1", "true", "yes")
 
-if USE_SQLITE:
+# Production on Vercel / serverless: use PostgreSQL via DATABASE_URL (Neon, Supabase, Railway, etc.).
+# SQLite is not reliable on read-only or ephemeral filesystems — contact form will OperationalError.
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=0,
+        )
+    }
+elif USE_SQLITE:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",

@@ -41,7 +41,13 @@ export function ContactForm() {
       if (!res.ok) {
         const flat: FieldErrors = {};
         let general = "Something went wrong. Please try again.";
-        if (typeof data.detail === "string") general = data.detail;
+        if (typeof data.detail === "string") {
+          general = data.detail;
+          if (general.trimStart().startsWith("<!DOCTYPE") || general.includes("<html")) {
+            general =
+              "Could not save your message (server/database error). If the site admin is fixing the API, try again later.";
+          }
+        }
         for (const [key, val] of Object.entries(data)) {
           if (key === "detail") continue;
           const msg = Array.isArray(val) ? val[0] : val;
