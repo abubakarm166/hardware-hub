@@ -1,23 +1,25 @@
 const DEFAULT_DEV_API = "http://127.0.0.1:8000";
 
+/** Deployed Django API (used in production when env vars are not set). Override with `API_URL`. */
+const DEFAULT_PRODUCTION_API = "https://hardware-hub-td6s.vercel.app";
+
 /** Milliseconds — avoids hanging builds when the API host is unreachable. */
 const FETCH_TIMEOUT_MS = 10_000;
 
 /**
  * Backend base URL for server-side fetches.
- * - Uses `API_URL` or `NEXT_PUBLIC_API_URL` when set.
+ * - Uses `API_URL` or `NEXT_PUBLIC_API_URL` when set (recommended for other environments).
  * - In **development** (`next dev`), defaults to localhost so local Django works.
- * - In **production** (including `next build` on Vercel), returns `null` if unset so we never
- *   call `127.0.0.1` from the cloud (that caused 60s+ timeouts and failed deploys).
+ * - In **production**, defaults to the deployed API above (never `127.0.0.1` in the cloud).
  */
-export function getApiBase(): string | null {
+export function getApiBase(): string {
   const explicit =
     process.env.API_URL?.trim() || process.env.NEXT_PUBLIC_API_URL?.trim();
   if (explicit) return explicit.replace(/\/$/, "");
   if (process.env.NODE_ENV === "development") {
     return DEFAULT_DEV_API.replace(/\/$/, "");
   }
-  return null;
+  return DEFAULT_PRODUCTION_API.replace(/\/$/, "");
 }
 
 export type DeviceCatalog = {
@@ -37,8 +39,6 @@ export type RepairJobPublic = {
 
 async function getJson<T>(path: string): Promise<T | null> {
   const base = getApiBase();
-  if (!base) return null;
-
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
