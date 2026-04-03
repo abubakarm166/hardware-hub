@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import dj_database_url
-from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -72,14 +71,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 USE_SQLITE = os.environ.get("USE_SQLITE", "true").lower() in ("1", "true", "yes")
 
-# Production on Vercel / serverless: use PostgreSQL via DATABASE_URL (Neon, Supabase, Railway, etc.).
-# SQLite is not reliable on read-only or ephemeral filesystems — contact form will OperationalError.
+# Production on Vercel / serverless: set DATABASE_URL to PostgreSQL (Neon, Supabase, Railway, etc.).
+# Do not raise here if missing — Vercel’s build imports settings before all env vars are applied;
+# SQLite at runtime on Vercel is read-only (OperationalError) until DATABASE_URL is set.
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
-if os.environ.get("VERCEL") == "1" and not DATABASE_URL:
-    raise ImproperlyConfigured(
-        "Set DATABASE_URL to a PostgreSQL URL in the Vercel project env. "
-        "SQLite is read-only on Vercel — admin login and API writes will fail without Postgres."
-    )
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
