@@ -53,25 +53,40 @@ Because the Next app lives in a subfolder, set:
 
 Leave **Build Command** and **Output Directory** empty unless Vercel fills them; defaults (`next build` and Next output) are correct.
 
+**Critical:** After the project is created, open **Settings → General** and confirm **Root Directory** is exactly **`frontend`** (not empty, not `./`). If it points at the repo root, Vercel will not run your Next.js app correctly and you can get a **live deployment that shows `404 NOT_FOUND`**.
+
 Click **Deploy** (you can add env vars in the next step or before first deploy).
 
 ---
 
 ## Step 4 — Environment variables (production)
 
-After the first deploy (or on **Settings → Environment Variables**):
+### Next.js project (this repo’s `frontend/` on Vercel)
 
-Add these for the **Production** environment (and **Preview** if you want previews to hit a staging API):
+After the first deploy (or on **Settings → Environment Variables**):
 
 | Name | Example value | Purpose |
 |------|----------------|--------|
-| `API_URL` | `https://api.your-domain.com` | Server-side: Next.js route `/api/contact` and SSR fetches to your Django API (**must be `https`** in production). |
-| `NEXT_PUBLIC_API_URL` | Same as `API_URL` | Only if you later add **browser** calls to the API; optional for current Phase 1 server-side fetch. |
+| `API_URL` | `https://YOUR-DJANGO-HOST.vercel.app` | Server-side: `/api/contact` proxy and SSR fetches — **must match your Django deployment URL**, **no trailing slash**. Example pair: frontend `https://hardware-hub-d14w.vercel.app` → API `https://hardware-hub-td6s.vercel.app` → set `API_URL=https://hardware-hub-td6s.vercel.app`. |
+| `NEXT_PUBLIC_API_URL` | Same as `API_URL` | Optional — only if the browser calls the API directly. |
+
+### Django project (separate host — Railway, Render, Vercel Python, etc.)
+
+Set these on **that** service so the API accepts your Vercel frontend:
+
+| Name | Example value | Purpose |
+|------|----------------|--------|
+| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1,hardware-hub-td6s.vercel.app` | Fixes **`DisallowedHost`** — must include the **hostname** of the Django site (no `https://`). |
+| `CORS_ALLOWED_ORIGINS` | `https://hardware-hub-d14w.vercel.app,http://localhost:3000` | Allows the **Next.js** origin to call the API (comma-separated, **https**, no trailing slash). |
+| `CSRF_TRUSTED_ORIGINS` | `https://hardware-hub-td6s.vercel.app` | Optional — if you use Django **admin** over HTTPS on the API host. |
+
+Redeploy Django after changing env vars.
 
 **Rules:**
 
 - No trailing slash on the URL.
-- Deploy the **Django backend first** and use its real public URL here. Until the API exists, catalog/track/contact from the server may fail or show empty states — that’s expected.
+- **You can deploy without `API_URL`:** the site builds successfully; pages that read the API show empty/fallback content until you set `API_URL` to a live Django URL. (Older setups defaulted to `localhost` during build and caused timeouts — that is fixed in code.)
+- Deploy the **Django backend** when you’re ready and set `API_URL` to its public `https` URL. Until then, catalog/track data and the contact form proxy stay empty or return a configuration message.
 
 Click **Save**, then **Redeploy** (Deployments → … → Redeploy) so new variables apply.
 
@@ -115,7 +130,9 @@ Then set `API_URL` on Vercel to that API’s base URL.
 
 | Issue | What to try |
 |--------|-------------|
-| Build fails | In Vercel build logs, confirm Root Directory is `frontend` and Node version is 18+ (Vercel default is fine). |
+| **`404 NOT_FOUND`** (Vercel error page, code `NOT_FOUND`, deployment “Ready”) | Almost always **wrong Root Directory**. Open **Project → Settings → General → Root Directory** → **Edit** → select the **`frontend`** folder (or type `frontend`) → **Save**. Redeploy (**Deployments** → … → **Redeploy**). Also set **Framework Preset** to **Next.js** if it’s “Other” or “Services”. |
+| **`/book-repair` build timeout (~60s) / “Failed to build … after 3 attempts”** | Your Vercel build is using an **old Git commit** that still called `localhost` for the API. **Push the latest `main`** from this repo (includes `frontend/src/lib/api.ts` — no API URL in production = no hang). In Vercel logs, check the **commit hash** matches GitHub’s latest. |
+| Build fails (other) | In Vercel build logs, confirm Root Directory is `frontend` and Node version is 18+ (Vercel default is fine). |
 | Site loads but no catalog / contact errors | `API_URL` wrong or API down; check Django URL and CORS. |
 | 404 on old deployment | Trigger a fresh deploy from the latest `main` branch. |
 

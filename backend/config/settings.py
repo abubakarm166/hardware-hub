@@ -19,6 +19,12 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
+# Django 4+ — HTTPS admin / forms behind a proxy (e.g. Vercel). Comma-separated origins, no path.
+_csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
+CSRF_TRUSTED_ORIGINS = (
+    [o.strip() for o in _csrf_origins.split(",") if o.strip()] if _csrf_origins else []
+)
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
