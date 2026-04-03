@@ -17,6 +17,16 @@ export async function POST(request: Request) {
   }
 
   const base = getApiBase();
+  if (!base) {
+    return NextResponse.json(
+      {
+        detail:
+          "Contact form is not configured. Set API_URL to your Django API URL in the host environment.",
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     const res = await fetch(`${base}/api/contact/`, {
       method: "POST",
