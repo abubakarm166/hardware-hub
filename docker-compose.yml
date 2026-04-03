@@ -1,0 +1,17 @@
+# PostgreSQL for local/staging-style development.
+# Django defaults to SQLite when USE_SQLITE=true (see backend/.env.example).
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hardware_hub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - hardware_hub_pgdata:/var/lib/postgresql/data
+
+volumes:
+  hardware_hub_pgdata:
