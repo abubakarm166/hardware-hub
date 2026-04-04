@@ -34,10 +34,15 @@ def _build_allowed_hosts() -> list[str]:
         n = _normalize_hostname(part)
         if n and n not in hosts:
             hosts.append(n)
-    # Optional single host (e.g. Railway) if you prefer not to edit the comma list
+    # Optional single host if you prefer not to edit the comma list
     extra = _normalize_hostname(os.environ.get("PUBLIC_HOSTNAME", ""))
     if extra and extra not in hosts:
         hosts.append(extra)
+    # Railway sets these at runtime (public URL is e.g. *.up.railway.app)
+    for key in ("RAILWAY_PUBLIC_DOMAIN", "RAILWAY_PRIVATE_DOMAIN"):
+        n = _normalize_hostname(os.environ.get(key, ""))
+        if n and n not in hosts:
+            hosts.append(n)
     return hosts
 
 
