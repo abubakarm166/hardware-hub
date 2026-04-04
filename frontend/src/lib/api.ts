@@ -1,7 +1,8 @@
 const DEFAULT_DEV_API = "http://127.0.0.1:8000";
 
 /** Deployed Django API (used in production when env vars are not set). Override with `API_URL`. */
-const DEFAULT_PRODUCTION_API = "https://hardware-hub-td6s.vercel.app";
+const DEFAULT_PRODUCTION_API =
+  "https://hardware-hub-production-0445.up.railway.app";
 
 /** Milliseconds — avoids hanging builds when the API host is unreachable. */
 const FETCH_TIMEOUT_MS = 10_000;

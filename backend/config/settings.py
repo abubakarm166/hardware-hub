@@ -52,13 +52,40 @@ def _build_allowed_hosts() -> list[str]:
     return hosts
 
 
-ALLOWED_HOSTS = _build_allowed_hosts()
+def _normalize_csrf_origin(raw: str) -> str:
+    return raw.strip().rstrip("/")
 
-# Django 4+ — HTTPS admin / forms behind a proxy (e.g. Vercel). Comma-separated origins, no path.
-_csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
-CSRF_TRUSTED_ORIGINS = (
-    [o.strip() for o in _csrf_origins.split(",") if o.strip()] if _csrf_origins else []
-)
+
+def _build_csrf_trusted_origins(allowed_hosts: list[str]) -> list[str]:
+    """
+    Django 4+ checks Origin against CSRF_TRUSTED_ORIGINS for HTTPS.
+    Merge explicit env, Railway public URL, and https://<host> for each concrete ALLOWED_HOSTS entry.
+    """
+    raw = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
+    origins: list[str] = []
+    for part in raw.split(","):
+        o = _normalize_csrf_origin(part)
+        if o and o not in origins:
+            origins.append(o)
+    for key in ("RAILWAY_PUBLIC_DOMAIN", "PUBLIC_HOSTNAME"):
+        h = _normalize_hostname(os.environ.get(key, ""))
+        if h:
+            o = f"https://{h}"
+            if o not in origins:
+                origins.append(o)
+    for h in allowed_hosts:
+        if not h or h.startswith("."):
+            continue
+        if h in ("localhost", "127.0.0.1"):
+            continue
+        o = f"https://{h}"
+        if o not in origins:
+            origins.append(o)
+    return origins
+
+
+ALLOWED_HOSTS = _build_allowed_hosts()
+CSRF_TRUSTED_ORIGINS = _build_csrf_trusted_origins(ALLOWED_HOSTS)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
