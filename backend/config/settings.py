@@ -14,11 +14,34 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1", "hardware-hub-production-0445.up.railway.app").split(",")
-    if h.strip()
-]
+
+def _normalize_hostname(raw: str) -> str:
+    """Strip scheme/path/port so pasted URLs work in DJANGO_ALLOWED_HOSTS."""
+    h = raw.strip()
+    if not h:
+        return ""
+    for prefix in ("https://", "http://"):
+        if h.startswith(prefix):
+            h = h[len(prefix) :]
+            break
+    return h.split("/")[0].split(":")[0].strip()
+
+
+def _build_allowed_hosts() -> list[str]:
+    raw = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+    hosts: list[str] = []
+    for part in raw.split(","):
+        n = _normalize_hostname(part)
+        if n and n not in hosts:
+            hosts.append(n)
+    # Optional single host (e.g. Railway) if you prefer not to edit the comma list
+    extra = _normalize_hostname(os.environ.get("PUBLIC_HOSTNAME", ""))
+    if extra and extra not in hosts:
+        hosts.append(extra)
+    return hosts
+
+
+ALLOWED_HOSTS = _build_allowed_hosts()
 
 # Django 4+ — HTTPS admin / forms behind a proxy (e.g. Vercel). Comma-separated origins, no path.
 _csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
