@@ -43,6 +43,12 @@ def _build_allowed_hosts() -> list[str]:
         n = _normalize_hostname(os.environ.get(key, ""))
         if n and n not in hosts:
             hosts.append(n)
+    # If RAILWAY_PUBLIC_DOMAIN is missing in the process (edge cases), Django's
+    # leading-dot rule still allows any hostname ending in .railway.app
+    if os.environ.get("RAILWAY_PROJECT_ID"):
+        railway_wildcard = ".railway.app"
+        if railway_wildcard not in hosts:
+            hosts.append(railway_wildcard)
     return hosts
 
 
