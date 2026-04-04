@@ -127,7 +127,7 @@ You can also copy it from the **Deployments** tab (open the active deployment) o
 
 1. **Variables** — add `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS` (hostname from §3.5a), `CORS_ALLOWED_ORIGINS` (your Vercel frontend URL). Add **`DATABASE_URL`** from a **PostgreSQL** service (recommended).
 2. **Postgres** — **+ New** → **Database** → **PostgreSQL**, then link **`DATABASE_URL`** into the web service.
-3. **Migrations** — run `python manage.py migrate` against that DB (local shell with `DATABASE_URL` or Railway shell).
+3. **Migrations** — the **`backend/Dockerfile`** and **`backend/Procfile`** run `python manage.py migrate --noinput` before Gunicorn so tables (including `auth_user`) are created on deploy. **SQLite on Railway without a volume is still a bad idea** (data is lost on redeploy); add **PostgreSQL** and **`DATABASE_URL`**. Run **`createsuperuser`** once (§3.6).
 4. **Frontend** — set Vercel **`API_URL`** to your Railway HTTPS base URL and redeploy.
 5. Test **`/api/health/`** and **`/healthcheck/`** in the browser.
 

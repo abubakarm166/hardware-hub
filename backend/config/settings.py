@@ -132,6 +132,9 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 USE_SQLITE = os.environ.get("USE_SQLITE", "true").lower() in ("1", "true", "yes")
 
+# On Railway/Render Docker: prefer DATABASE_URL (Postgres). SQLite in the container is ephemeral unless
+# you attach a volume — use Postgres so admin and API data survive redeploys.
+
 # Production on Vercel / serverless: set DATABASE_URL to PostgreSQL (Neon, Supabase, Railway, etc.).
 # Do not raise here if missing — Vercel’s build imports settings before all env vars are applied;
 # SQLite at runtime on Vercel is read-only (OperationalError) until DATABASE_URL is set.
