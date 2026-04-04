@@ -104,6 +104,19 @@ Save; Railway will redeploy.
 2. Copy the base URL (e.g. `https://myapi.up.railway.app`).  
 3. If you change the hostname, **update `DJANGO_ALLOWED_HOSTS`** to match.
 
+**Health check path:** If **Deploy → Health check path** is `/healthcheck`, leave it — this repo exposes **`GET /healthcheck/`** (same response as **`/api/health/`**). You can also set it to **`/api/health/`** if you prefer.
+
+**Start / build commands:** If you use **`backend/Dockerfile`**, **Start command** can stay empty (Docker **`CMD`** runs Gunicorn). If the dashboard shows empty start and the app won’t boot, set **Start command** to:  
+`gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
+
+### 3.5a After deploy succeeds — checklist
+
+1. **Variables** — add `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS` (your Railway hostname), `CORS_ALLOWED_ORIGINS` (your Vercel frontend URL). Add **`DATABASE_URL`** from a **PostgreSQL** service (recommended).
+2. **Postgres** — **+ New** → **Database** → **PostgreSQL**, then link **`DATABASE_URL`** into the web service.
+3. **Migrations** — run `python manage.py migrate` against that DB (local shell with `DATABASE_URL` or Railway shell).
+4. **Frontend** — set Vercel **`API_URL`** to your Railway HTTPS base URL and redeploy.
+5. Test **`/api/health/`** and **`/healthcheck/`** in the browser.
+
 ### 3.6 Run migrations (once)
 
 Use the **same** `DATABASE_URL` as production:
