@@ -65,10 +65,12 @@ python manage.py runserver
 
 **Step-by-step Vercel (free) for the Next.js app:** see **[docs/HOSTING_VERCEL.md](docs/HOSTING_VERCEL.md)**.
 
+**Host the Django API elsewhere (Railway, Render, VPS):** see **[docs/HOSTING_DJANGO_BACKEND.md](docs/HOSTING_DJANGO_BACKEND.md)** (`backend/Procfile` + `gunicorn`).
+
 Typical setup (adjust names/regions):
 
 1. **Frontend:** Deploy `frontend/` to [Vercel](https://vercel.com) or similar — set root to `frontend`, build `npm run build`, output Next default.
-2. **Backend:** Deploy `backend/` to [Railway](https://railway.app), [Render](https://render.com), or AWS Elastic Beanstalk — run `gunicorn config.wsgi:application`, set env vars from `backend/.env.example`, attach **PostgreSQL**. On **Vercel serverless for Django**, set **`DATABASE_URL`** to Postgres (SQLite will raise **`OperationalError`** — no writable DB file).
+2. **Backend:** Deploy `backend/` to [Railway](https://railway.app), [Render](https://render.com), or a VPS — run `gunicorn config.wsgi:application`, env from `backend/.env.example`. **SQLite** works only where the app has a **writable persistent disk** (typical local/VPS). **Vercel’s Django runtime cannot use SQLite reliably** — use Postgres there or host the API elsewhere; see **[docs/SQLITE_DEPLOYMENT.md](docs/SQLITE_DEPLOYMENT.md)**.
 3. **Environment:** Set `DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` to your staging domains; set `DJANGO_DEBUG=false` and a strong `DJANGO_SECRET_KEY`.
 4. **SSL:** Enforce HTTPS at the host (Vercel/Railway provide certificates).
 
