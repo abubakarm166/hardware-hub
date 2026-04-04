@@ -127,13 +127,16 @@ You can also copy it from the **Deployments** tab (open the active deployment) o
 
 1. **Variables** — add `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS` (hostname from §3.5a), `CORS_ALLOWED_ORIGINS` (your Vercel frontend URL). Add **`DATABASE_URL`** from a **PostgreSQL** service (recommended).
 2. **Postgres** — **+ New** → **Database** → **PostgreSQL**, then link **`DATABASE_URL`** into the web service.
-3. **Migrations** — the **`backend/Dockerfile`** and **`backend/Procfile`** run `python manage.py migrate --noinput` before Gunicorn so tables (including `auth_user`) are created on deploy. **SQLite on Railway without a volume is still a bad idea** (data is lost on redeploy); add **PostgreSQL** and **`DATABASE_URL`**. Run **`createsuperuser`** once (§3.6).
+3. **Migrations & admin assets** — **`deploy_start.sh`** (used by the Dockerfile and Procfile) runs `migrate`, `collectstatic`, then Gunicorn. **WhiteNoise** serves Django admin CSS/JS when `DEBUG` is false. **SQLite on Railway without a volume is still a bad idea** (data is lost on redeploy); add **PostgreSQL** and **`DATABASE_URL`**. Create a superuser via env bootstrap or shell (§3.6).
 4. **Frontend** — set Vercel **`API_URL`** to your Railway HTTPS base URL and redeploy.
 5. Test **`/api/health/`** and **`/healthcheck/`** in the browser.
 
-### 3.6 Run migrations (once)
+### 3.6 Superuser, demo data, migrations
 
-Use the **same** `DATABASE_URL` as production:
+**Bootstrap via Railway variables (good for first deploy)**  
+Add: `BOOTSTRAP_ADMIN=1`, `BOOTSTRAP_ADMIN_USERNAME=admin`, `BOOTSTRAP_ADMIN_PASSWORD=your-password`, optional `BOOTSTRAP_ADMIN_EMAIL=admin@localhost`, and `SEED_DUMMY_DATA=1` for catalog/jobs. **Unset `BOOTSTRAP_ADMIN` after** the user exists (avoids re-running on every deploy). Use a **strong** password in production; the `bootstrap_admin` command uses `set_password` so short passwords work.
+
+**Manual (same `DATABASE_URL` as production)**
 
 ```bash
 cd backend
@@ -144,7 +147,7 @@ python manage.py createsuperuser
 python manage.py seed_dummy_data   # optional
 ```
 
-Or use **Railway → web service → Shell** (if available) and run the same commands in `/app` with env already injected.
+Or **Railway → web service → Shell** (if available) and run the same in `/app`.
 
 ### 3.7 Point Vercel (Next.js) at Railway
 

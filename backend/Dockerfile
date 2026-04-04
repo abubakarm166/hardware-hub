@@ -11,8 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN chmod +x deploy_start.sh
+
 EXPOSE 8000
 
-# Apply migrations before serving (fixes "no such table: auth_user" on fresh DBs).
-# Railway sets PORT; local fallback 8000
-CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+# Migrations, optional admin bootstrap & seed, then Gunicorn. Railway sets PORT.
+CMD ["sh", "deploy_start.sh"]
