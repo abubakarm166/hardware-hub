@@ -73,7 +73,7 @@ export function ContactForm() {
 
   if (success) {
     return (
-      <div className="rounded-2xl border border-border bg-accent-soft/60 px-6 py-10 text-center">
+      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
         <p className="text-lg font-semibold text-foreground">Message sent</p>
         <p className="mt-2 text-sm text-muted">
           Thank you — we’ll get back to you as soon as we can.
@@ -108,7 +108,7 @@ export function ContactForm() {
           autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm outline-none ring-accent/20 transition-shadow placeholder:text-muted focus:border-foreground/20 focus:ring-2"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none ring-brand/20 transition-shadow placeholder:text-slate-400 focus:border-slate-300 focus:ring-2"
           placeholder="Your name"
         />
         {errors.name ? <p className="mt-1 text-xs text-red-600">{errors.name}</p> : null}
@@ -125,7 +125,7 @@ export function ContactForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm outline-none ring-accent/20 transition-shadow placeholder:text-muted focus:border-foreground/20 focus:ring-2"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none ring-brand/20 transition-shadow placeholder:text-slate-400 focus:border-slate-300 focus:ring-2"
           placeholder="you@example.com"
         />
         {errors.email ? <p className="mt-1 text-xs text-red-600">{errors.email}</p> : null}
@@ -142,7 +142,7 @@ export function ContactForm() {
           autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm outline-none ring-accent/20 transition-shadow placeholder:text-muted focus:border-foreground/20 focus:ring-2"
+          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none ring-brand/20 transition-shadow placeholder:text-slate-400 focus:border-slate-300 focus:ring-2"
           placeholder="+27 …"
         />
         {errors.phone ? <p className="mt-1 text-xs text-red-600">{errors.phone}</p> : null}
@@ -158,7 +158,7 @@ export function ContactForm() {
           rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="mt-2 w-full resize-y rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm outline-none ring-accent/20 transition-shadow placeholder:text-muted focus:border-foreground/20 focus:ring-2"
+          className="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none ring-brand/20 transition-shadow placeholder:text-slate-400 focus:border-slate-300 focus:ring-2"
           placeholder="How can we help?"
         />
         {errors.message ? <p className="mt-1 text-xs text-red-600">{errors.message}</p> : null}
@@ -167,7 +167,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        className="w-full rounded-full bg-brand px-6 py-3 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
         {submitting ? "Sending…" : "Send message"}
       </button>

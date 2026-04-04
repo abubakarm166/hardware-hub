@@ -9,6 +9,9 @@
   --border: #e5e5e5;
   --accent: #0f172a;
   --accent-soft: #f1f5f9;
+  /* Brand orange + deep navy (hero / footer) — matches hero-pattern aesthetic */
+  --brand: #f97316;
+  --hero-navy: #0a1628;
 }
 
 body {

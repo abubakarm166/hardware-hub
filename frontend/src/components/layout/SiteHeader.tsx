@@ -10,17 +10,20 @@ const nav = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-[#f8fafc]">
       <div className="mx-auto flex max-w-content items-center justify-between gap-6 px-6 py-4 lg:px-8">
-        <Link href="/" className="text-lg font-semibold tracking-tight text-foreground">
+        <Link
+          href="/"
+          className="font-serif text-xl font-semibold tracking-tight text-slate-900"
+        >
           Hardware Hub
         </Link>
-        <nav className="hidden items-center gap-8 text-sm font-medium text-muted md:flex">
+        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="transition-colors hover:text-foreground"
+              className="transition-colors hover:text-slate-900"
             >
               {item.label}
             </Link>
@@ -28,17 +31,17 @@ export function SiteHeader() {
         </nav>
         <Link
           href="/contact"
-          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-95"
         >
           Contact
         </Link>
       </div>
-      <nav className="flex gap-4 overflow-x-auto border-t border-border/60 px-6 py-3 md:hidden">
+      <nav className="flex gap-4 overflow-x-auto border-t border-slate-200/80 px-6 py-3 md:hidden">
         {nav.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="whitespace-nowrap text-sm font-medium text-muted"
+            className="whitespace-nowrap text-sm font-medium text-slate-600"
           >
             {item.label}
           </Link>

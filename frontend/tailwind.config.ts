@@ -15,9 +15,12 @@ export default {
         border: "var(--border)",
         accent: "var(--accent)",
         "accent-soft": "var(--accent-soft)",
+        brand: "var(--brand)",
+        "hero-navy": "var(--hero-navy)",
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        serif: ["var(--font-playfair)", "Georgia", "serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
       },
       maxWidth: {

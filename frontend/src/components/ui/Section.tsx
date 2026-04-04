@@ -21,15 +21,15 @@ export function Section({
     <section id={id} className={`scroll-mt-24 ${className}`}>
       <div className="mx-auto max-w-content px-6 lg:px-8">
         {eyebrow ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="mt-3 text-balance text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+        <h2 className="mt-3 text-balance font-serif text-2xl font-medium tracking-tight text-foreground md:text-4xl">
           {title}
         </h2>
         {description ? (
-          <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted md:text-lg">
+          <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-slate-600 md:text-lg">
             {description}
           </p>
         ) : null}

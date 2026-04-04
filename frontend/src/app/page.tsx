@@ -22,7 +22,15 @@ const services = [
   },
 ];
 
-const FALLBACK_BRANDS = ["Samsung", "Apple", "Huawei", "OPPO"];
+const FALLBACK_BRANDS = [
+  "Samsung",
+  "Apple",
+  "Huawei",
+  "OPPO",
+  "Motorola",
+  "Google",
+  "Xiaomi",
+];
 
 export default async function HomePage() {
   const devices = await fetchDevices();
@@ -31,23 +39,38 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-border bg-white">
-        <div className="mx-auto max-w-content px-6 pb-20 pt-16 md:pb-28 md:pt-24 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted">
-            Premium multi-brand service
-          </p>
-          <h1 className="mt-6 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
-            Repair excellence for devices that keep South Africa connected.
-          </h1>
-          <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted md:text-xl">
-            Hardware Hub combines accredited technical capability with a streamlined digital
-            experience—from booking to return.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <ButtonLink href="/book-repair">Book a repair</ButtonLink>
-            <ButtonLink href="/track" variant="secondary">
-              Track a repair
-            </ButtonLink>
+      <section className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-[#0a1628]" aria-hidden />
+        <div
+          className="absolute inset-0 bg-cover bg-[center_top] bg-no-repeat opacity-50"
+          style={{ backgroundImage: "url('/hero-pattern.jpg')" }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-[#0a1628]/95 via-[#0a1628]/88 to-[#0a162870]"
+          aria-hidden
+        />
+        <div className="relative mx-auto max-w-content px-6 pb-24 pt-12 md:pb-32 md:pt-16 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brand">
+              Premium multi-brand service
+            </p>
+            <h1 className="mt-6 text-balance font-serif text-4xl font-medium tracking-tight text-white md:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
+              Repair excellence for devices that keep{" "}
+              <span className="text-brand">South Africa</span> connected.
+            </h1>
+            <p className="mt-6 text-pretty text-lg leading-relaxed text-white/75 md:text-xl">
+              Hardware Hub combines accredited technical capability with a streamlined digital
+              experience—from booking to return.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <ButtonLink href="/book-repair" variant="brand">
+                Book a repair
+              </ButtonLink>
+              <ButtonLink href="/track" variant="onDark">
+                Track a repair
+              </ButtonLink>
+            </div>
           </div>
         </div>
       </section>
@@ -62,9 +85,10 @@ export default async function HomePage() {
             {services.map((s) => (
               <div
                 key={s.title}
-                className="rounded-2xl border border-border bg-white p-8 shadow-sm transition-shadow hover:shadow-md"
+                className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-shadow hover:shadow-md"
               >
-                <h3 className="text-lg font-semibold text-foreground">{s.title}</h3>
+                <div className="mb-4 h-1 w-10 rounded-full bg-brand" aria-hidden />
+                <h3 className="text-lg font-semibold text-slate-900">{s.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted">{s.copy}</p>
               </div>
             ))}
@@ -81,16 +105,17 @@ export default async function HomePage() {
           title="Solutions for insurers, operators, and fleets"
           description="Dedicated portals, bulk intake, SLA dashboards, and invoicing—structured for high-volume partners."
         >
-          <div className="flex flex-col gap-6 rounded-2xl border border-border bg-accent-soft/80 p-8 md:flex-row md:items-center md:justify-between md:p-10">
-            <p className="max-w-xl text-sm leading-relaxed text-foreground md:text-base">
+          <div className="flex flex-col gap-6 rounded-2xl border border-slate-200 bg-[#f8fafc] p-8 md:flex-row md:items-center md:justify-between md:p-10">
+            <p className="max-w-xl text-sm leading-relaxed text-slate-700 md:text-base">
               Phase 1 focuses on the public experience. Corporate tooling and integrations arrive in
               later releases—architecture is ready for ERP, payments, and courier workflows.
             </p>
             <Link
               href="/corporate"
-              className="shrink-0 rounded-full border border-border bg-white px-6 py-3 text-center text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-white/90"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#0a1628] px-6 py-3 text-center text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-95"
             >
               Corporate overview
+              <span aria-hidden>→</span>
             </Link>
           </div>
         </Section>
@@ -108,7 +133,7 @@ export default async function HomePage() {
             {accreditationNames.map((name) => (
               <div
                 key={name}
-                className="flex h-24 items-center justify-center rounded-xl border border-border bg-white px-3 text-center text-sm font-medium text-foreground shadow-sm"
+                className="flex h-24 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-center text-sm font-medium text-slate-800 shadow-sm"
               >
                 {name}
               </div>
@@ -122,17 +147,21 @@ export default async function HomePage() {
           title="Let’s talk about your repair needs"
           description="Reach out for service enquiries, partnerships, or enterprise programmes."
         >
-          <div className="rounded-2xl border border-border bg-white p-8 md:p-10">
-            <p className="text-sm text-muted">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm md:p-10">
+            <p className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+              <span className="inline-block h-2 w-2 rounded-full bg-brand" aria-hidden />
               Email{" "}
               <a
                 href="mailto:info@hardware-hub.co.za"
-                className="font-medium text-foreground underline-offset-4 hover:underline"
+                className="font-medium text-slate-900 underline-offset-4 hover:underline"
               >
                 info@hardware-hub.co.za
               </a>
             </p>
-            <p className="mt-2 text-sm text-muted">Phone placeholder · Business hours SAST</p>
+            <p className="mt-3 flex items-center gap-2 text-sm text-slate-600">
+              <span className="inline-block h-2 w-2 rounded-full bg-brand/70" aria-hidden />
+              Phone placeholder · Business hours SAST
+            </p>
           </div>
         </Section>
       </div>
