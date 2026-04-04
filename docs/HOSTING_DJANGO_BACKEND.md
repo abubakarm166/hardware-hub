@@ -109,9 +109,23 @@ Save; Railway will redeploy.
 **Start / build commands:** If you use **`backend/Dockerfile`**, **Start command** can stay empty (Docker **`CMD`** runs Gunicorn). If the dashboard shows empty start and the app won’t boot, set **Start command** to:  
 `gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
 
-### 3.5a After deploy succeeds — checklist
+### 3.5a Where to find the Railway **hostname** (for `DJANGO_ALLOWED_HOSTS`)
 
-1. **Variables** — add `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS` (your Railway hostname), `CORS_ALLOWED_ORIGINS` (your Vercel frontend URL). Add **`DATABASE_URL`** from a **PostgreSQL** service (recommended).
+You need the **host part only** of your API — **no** `https://`, no `/` path.
+
+1. Open your **hardware-hub** web service on the Railway project canvas.
+2. Go to **Settings** → **Networking** (or **Public Networking**).
+3. Click **Generate domain** if Railway hasn’t given you a URL yet.
+4. You’ll see a URL like **`https://hardware-hub-production-xxxx.up.railway.app`**.  
+   The **hostname** is everything after `https://` and before the next `/` — e.g. **`hardware-hub-production-xxxx.up.railway.app`**. Put **that** in **`DJANGO_ALLOWED_HOSTS`**.
+
+You can also copy it from the **Deployments** tab (open the active deployment) or from the **globe / open** link on the service card.
+
+---
+
+### 3.5b After deploy succeeds — checklist
+
+1. **Variables** — add `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS` (hostname from §3.5a), `CORS_ALLOWED_ORIGINS` (your Vercel frontend URL). Add **`DATABASE_URL`** from a **PostgreSQL** service (recommended).
 2. **Postgres** — **+ New** → **Database** → **PostgreSQL**, then link **`DATABASE_URL`** into the web service.
 3. **Migrations** — run `python manage.py migrate` against that DB (local shell with `DATABASE_URL` or Railway shell).
 4. **Frontend** — set Vercel **`API_URL`** to your Railway HTTPS base URL and redeploy.
