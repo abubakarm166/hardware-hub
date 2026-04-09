@@ -25,7 +25,7 @@ export function SiteHeader() {
             className="h-9 w-9 object-contain sm:h-10 sm:w-10"
             priority
           />
-          <span className="font-serif text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
+          <span className="font-sans text-lg font-semibold tracking-tight text-foreground sm:text-xl">
             Hardware Hub
           </span>
         </Link>
