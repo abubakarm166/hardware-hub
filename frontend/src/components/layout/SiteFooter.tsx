@@ -6,14 +6,17 @@ export function SiteFooter() {
     <footer className="border-t border-white/10 bg-[#0a1628] text-white">
       <div className="mx-auto grid max-w-content gap-10 px-6 py-14 lg:grid-cols-3 lg:px-8">
         <div>
-          <Link href="/" className="inline-block">
+          <Link href="/" className="inline-flex items-center gap-1.5 sm:gap-2.5">
             <Image
               src="/hardware-hub-logo.png"
-              alt="Hardware Hub"
-              width={200}
-              height={48}
-              className="h-8 w-auto opacity-95"
+              alt=""
+              width={40}
+              height={40}
+              className="h-8 w-8 object-contain opacity-95 brightness-0 invert"
             />
+            <span className="font-serif text-lg font-semibold tracking-tight text-white">
+              Hardware Hub
+            </span>
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
             Premium multi-brand repair services for consumers and enterprise across South
