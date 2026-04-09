@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const nav = [
@@ -12,11 +13,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-[#f8fafc]">
       <div className="mx-auto flex max-w-content items-center justify-between gap-6 px-6 py-4 lg:px-8">
-        <Link
-          href="/"
-          className="font-serif text-xl font-semibold tracking-tight text-slate-900"
-        >
-          Hardware Hub
+        <Link href="/" className="flex shrink-0 items-center">
+          <Image
+            src="/hardware-hub-logo.png"
+            alt="Hardware Hub"
+            width={220}
+            height={56}
+            className="h-9 w-auto sm:h-10"
+            priority
+          />
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
           {nav.map((item) => (
