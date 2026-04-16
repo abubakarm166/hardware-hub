@@ -1,12 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BusinessMegaNav } from "@/components/layout/BusinessMegaNav";
 
-const nav = [
+const mainNav = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
   { href: "/book-repair", label: "Book repair" },
   { href: "/track", label: "Track repair" },
-  { href: "/corporate", label: "Corporate" },
+];
+
+const mobileNav = [
+  ...mainNav,
+  { href: "/corporate", label: "For Businesses" },
 ];
 
 export function SiteHeader() {
@@ -29,26 +34,27 @@ export function SiteHeader() {
             Hardware Hub
           </span>
         </Link>
-        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
-          {nav.map((item) => (
+        <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
+          {mainNav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="transition-colors hover:text-slate-900"
+              className="text-slate-600 transition-colors hover:text-slate-900"
             >
               {item.label}
             </Link>
           ))}
+          <BusinessMegaNav />
         </nav>
         <Link
           href="/contact"
-          className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-95"
+          className="whitespace-nowrap rounded-full bg-brand px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-95"
         >
-          Contact
+          Let&apos;s Connect
         </Link>
       </div>
       <nav className="flex gap-4 overflow-x-auto border-t border-slate-200/80 px-6 py-3 md:hidden">
-        {nav.map((item) => (
+        {mobileNav.map((item) => (
           <Link
             key={item.href}
             href={item.href}

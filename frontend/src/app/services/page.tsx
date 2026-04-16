@@ -53,8 +53,8 @@ export default async function ServicesPage() {
     <>
       <PageHero
         eyebrow="Services"
-        title="Repair and logistics built for clarity."
-        description="Hardware Hub brings accredited multi-brand service under one roof. Below is an overview of what we offer; detailed booking and tracking flows will expand as the platform rolls out."
+        title="Next-generation repair and logistics built for clarity."
+        description="Hardware Hub is a next-generation mobile device repair and aftersales services company, purpose-built for scale, compliance, and trust. We operate a best-in-class, ISO-aligned high-volume workshop that redefines service excellence through precision, transparency, and customer-centric delivery."
       />
 
       <div className="border-b border-slate-200 bg-white">

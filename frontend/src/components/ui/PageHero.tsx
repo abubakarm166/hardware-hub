@@ -13,7 +13,9 @@ export function PageHero({ eyebrow, title, description }: PageHeroProps) {
           {title}
         </h1>
         {description ? (
-          <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-white/80">{description}</p>
+          <p className="mt-6 max-w-3xl text-pretty text-base leading-relaxed text-white/80 md:text-lg">
+            {description}
+          </p>
         ) : null}
       </div>
     </section>

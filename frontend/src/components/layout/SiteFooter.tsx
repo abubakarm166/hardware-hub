@@ -19,8 +19,7 @@ export function SiteFooter() {
             </span>
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
-            Premium multi-brand repair services for consumers and enterprise across South
-            Africa.
+            Premium multi-brands service solutions for consumers and businesses.
           </p>
         </div>
         <div>
@@ -43,11 +42,16 @@ export function SiteFooter() {
                 Track a repair
               </Link>
             </li>
+            <li>
+              <Link href="/corporate" className="text-white/85 hover:text-white hover:underline">
+                For Businesses
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-brand">
-            Contact
+            Connect
           </p>
           <p className="mt-4 text-sm text-white/70">
             Placeholder address, South Africa
