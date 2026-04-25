@@ -1,6 +1,13 @@
 from django.core.management.base import BaseCommand
 
-from apps.core.models import DeviceCatalog, RepairJob
+from apps.core.models import (
+    DeviceCatalog,
+    Organization,
+    RepairFaultCode,
+    RepairIssueCategory,
+    RepairJob,
+    RepairTariff,
+)
 
 
 # Sample catalog — representative multi-brand line-up (dummy data).
@@ -24,6 +31,77 @@ JOB_SEED = [
     ("HH-DEMO-240004", RepairJob.Status.AWAITING_PARTS, 1),
     ("HH-DEMO-240005", RepairJob.Status.COMPLETED, 5),
     ("HH-DEMO-240006", RepairJob.Status.READY_FOR_RETURN, 3),
+]
+
+# (category_code, label, sort_order, [(fault_code, label, sort_order), ...])
+# Replace or extend via Django admin when the client supplies the final taxonomy.
+ISSUE_SEED = [
+    (
+        "CAT_DISPLAY",
+        "Display & touchscreen",
+        10,
+        [
+            ("DISP_CRACK", "Cracked / shattered glass", 0),
+            ("DISP_NO_TOUCH", "Touch not responding", 1),
+            ("DISP_IMAGE", "Lines, spots, or discolouration", 2),
+        ],
+    ),
+    (
+        "CAT_POWER",
+        "Power & charging",
+        20,
+        [
+            ("PWR_NO_POWER", "Won't power on", 0),
+            ("PWR_BATTERY", "Battery drains fast / won't hold charge", 1),
+            ("PWR_CHARGE_PORT", "Charging port / cable issue", 2),
+        ],
+    ),
+    (
+        "CAT_AUDIO",
+        "Audio",
+        30,
+        [
+            ("AUD_SPEAKER", "Speaker / earpiece fault", 0),
+            ("AUD_MIC", "Microphone fault", 1),
+        ],
+    ),
+    (
+        "CAT_CONNECT",
+        "Connectivity",
+        40,
+        [
+            ("NET_WIFI", "Wi‑Fi issues", 0),
+            ("NET_CELL", "Mobile signal / SIM", 1),
+            ("NET_BT", "Bluetooth", 2),
+        ],
+    ),
+    (
+        "CAT_CAMERA",
+        "Camera",
+        50,
+        [
+            ("CAM_REAR", "Rear camera fault", 0),
+            ("CAM_FRONT", "Front camera fault", 1),
+        ],
+    ),
+    (
+        "CAT_SOFTWARE",
+        "Software & system",
+        60,
+        [
+            ("SW_CRASH", "Freezes / crashes", 0),
+            ("SW_UPDATE", "Update / restore needed", 1),
+        ],
+    ),
+    (
+        "CAT_OTHER",
+        "Other / not listed",
+        90,
+        [
+            ("OTH_WATER", "Liquid damage suspected", 0),
+            ("OTH_UNKNOWN", "Not sure — needs assessment", 1),
+        ],
+    ),
 ]
 
 
@@ -56,6 +134,57 @@ class Command(BaseCommand):
                 f"  Device {'created' if created else 'updated'}: {obj.brand} {obj.model_name}"
             )
 
+        tariff_rows = [
+            ("assessment", "Workshop assessment & diagnostics", 0, 34_900, 0),
+            ("display_assy", "Display assembly (indicative)", 489_000, 89_900, 1),
+            ("battery", "Battery replacement (indicative)", 129_000, 49_900, 2),
+        ]
+        for dev in devices:
+            for code, label, parts_cents, labour_cents, sort_order in tariff_rows:
+                t, t_created = RepairTariff.objects.update_or_create(
+                    device=dev,
+                    code=code,
+                    defaults={
+                        "label": label,
+                        "parts_cents": parts_cents,
+                        "labour_cents": labour_cents,
+                        "sort_order": sort_order,
+                        "is_active": True,
+                    },
+                )
+                if t_created:
+                    self.stdout.write(f"  Tariff created: {dev.brand} {dev.model_name} — {label}")
+
+        for cat_code, cat_label, cat_sort, faults in ISSUE_SEED:
+            cat, _ = RepairIssueCategory.objects.update_or_create(
+                code=cat_code,
+                defaults={
+                    "label": cat_label,
+                    "sort_order": cat_sort,
+                    "is_active": True,
+                },
+            )
+            for fc_code, fc_label, fc_sort in faults:
+                RepairFaultCode.objects.update_or_create(
+                    category=cat,
+                    code=fc_code,
+                    defaults={
+                        "label": fc_label,
+                        "sort_order": fc_sort,
+                        "is_active": True,
+                    },
+                )
+            self.stdout.write(f"  Issue category ready: {cat.code}")
+
+        demo_org, _ = Organization.objects.get_or_create(
+            slug="demo-corp",
+            defaults={
+                "name": "Demo Corporate Ltd",
+                "sla_target_days": 5,
+            },
+        )
+
+        demo_track_email = "demo-track@hardwarehub.test"
         for ref, status, dev_idx in JOB_SEED:
             device = devices[dev_idx] if dev_idx is not None else None
             job, created = RepairJob.objects.update_or_create(
@@ -63,12 +192,17 @@ class Command(BaseCommand):
                 defaults={
                     "status": status,
                     "device": device,
-                    "customer_email": "",
-                    "notes": "Seeded demo job — replace when Vision ERP integration is live.",
+                    "customer_email": demo_track_email,
+                    "organization": demo_org,
+                    "notes": "Seeded demo job — replace when ERP integration is live.",
                 },
             )
             self.stdout.write(
                 f"  Job {'created' if created else 'updated'}: {job.job_reference} ({job.get_status_display()})"
             )
 
-        self.stdout.write(self.style.SUCCESS("Dummy data ready. Run the site against /api/devices/ and /api/repair-jobs/."))
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Dummy data ready. APIs: /api/devices/, /api/repair-jobs/, /api/booking/issue-options/."
+            )
+        )

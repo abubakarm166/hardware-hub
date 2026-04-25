@@ -41,7 +41,8 @@ hardware hub/
 ├── docker-compose.yml   # Optional PostgreSQL for local/staging-style DB
 ├── README.md            # Quick start and deployment notes
 └── docs/
-    └── PHASE1.md        # This file
+    ├── PHASE1.md        # This file
+    └── PHASE2.md        # Phase 2 implementation plan
 ```
 
 ---
@@ -118,7 +119,7 @@ flowchart LR
 - Email/SMS notification pipelines.
 - Corporate B2B portal, admin dashboards, role-based auth (beyond Django admin for staff).
 
-These are planned for **later milestones** on top of this codebase.
+These are planned for **later milestones** on top of this codebase. For a concrete implementation plan (milestones and how we build each part), see **[PHASE2.md](PHASE2.md)**.
 
 ---
 

@@ -56,17 +56,55 @@ export default function CorporatePage() {
       <PageHero
         eyebrow="For Businesses"
         title="Corporate solutions"
-        description="The B2B portal—bulk RMA uploads, SLA dashboards, and invoice downloads—is planned after the public MVP. Architecture and routes are prepared for that rollout."
+        description="Partner login, bulk RMA intake, and invoice lists are available as an MVP scaffold; deep ERP sync and SLA analytics follow when your system is chosen."
       />
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-content px-6 pb-20 pt-12 lg:px-8">
           <div className="rounded-2xl border border-slate-200 bg-[#f8fafc] p-8 md:p-10">
             <p className="text-sm leading-relaxed text-slate-600 md:text-base">
-              Phase 1 focuses on the public experience. When corporate tooling is ready, partners will
-              get dedicated portals, bulk intake, SLA visibility, and consolidated reporting—aligned
-              with your existing procurement and finance workflows.
+              Use{" "}
+              <Link href="/partner/login" className="font-medium text-brand hover:underline">
+                Partner login
+              </Link>{" "}
+              for B2B users created in Django admin. Bulk CSV is stored for now; ERP import and SLA
+              dashboards expand in Phase 2.
             </p>
           </div>
+
+          <section id="glossary" className="mt-14 scroll-mt-28">
+            <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
+              Glossary: bulk RMA, SLA, invoices
+            </h2>
+            <dl className="mt-6 space-y-6 text-sm leading-relaxed text-slate-600">
+              <div>
+                <dt className="font-semibold text-slate-900">Bulk RMA</dt>
+                <dd className="mt-1">
+                  <strong>RMA</strong> (return merchandise authorisation) is how a device is accepted
+                  into repair under a partner reference. <strong>Bulk</strong> means uploading many
+                  devices at once (usually CSV) instead of one-by-one consumer booking.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-slate-900">SLA</dt>
+                <dd className="mt-1">
+                  <strong>Service level agreement</strong> — agreed turnaround and quality targets
+                  (e.g. % of jobs within N days). The portal will surface SLA metrics when job data
+                  flows from your ERP or from rules in this platform.
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-slate-900">Invoices (B2B)</dt>
+                <dd className="mt-1">
+                  Billing documents for partners: repair charges, periods, and download links (PDF or
+                  external billing). Finance teams use them for reconciliation.
+                </dd>
+              </div>
+            </dl>
+            <p className="mt-4 text-xs text-slate-500">
+              Longer note for technical teams:{" "}
+              <code className="rounded bg-slate-100 px-1">docs/CORPORATE_PORTAL.md</code>
+            </p>
+          </section>
 
           <section className="mt-16 scroll-mt-28" aria-labelledby="segments-heading">
             <h2 id="segments-heading" className="font-serif text-2xl font-medium text-slate-900 md:text-3xl">

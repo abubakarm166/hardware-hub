@@ -9,6 +9,8 @@ type Body = {
   email?: string;
   phone?: string;
   message?: string;
+  /** Honeypot — must be empty (bots often fill this). */
+  website?: string;
 };
 
 const DB_ERROR_HINT =
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
         email: body.email?.trim(),
         phone: body.phone?.trim() ?? "",
         message: body.message?.trim(),
+        website: typeof body.website === "string" ? body.website : "",
       }),
       signal: controller.signal,
     });

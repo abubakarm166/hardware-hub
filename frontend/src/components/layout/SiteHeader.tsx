@@ -7,6 +7,7 @@ const mainNav = [
   { href: "/services", label: "Services" },
   { href: "/book-repair", label: "Book repair" },
   { href: "/track", label: "Track repair" },
+  { href: "/partner/login", label: "Partner" },
 ];
 
 const mobileNav = [

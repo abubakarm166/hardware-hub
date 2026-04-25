@@ -41,7 +41,7 @@ const pillars: {
 ];
 
 const roadmapItems = [
-  "Vision ERP integration for warranty checks and job creation",
+  "ERP integration for warranty checks and job creation",
   "PayFast (or equivalent) for secure card and Instant EFT",
   "Courier collection booking and waybill tracking",
 ];

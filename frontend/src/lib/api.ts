@@ -30,6 +30,25 @@ export type DeviceCatalog = {
   sku: string;
 };
 
+/** Booking intake — matches `GET /api/booking/issue-options/`. */
+export type FaultCodeOption = {
+  id: number;
+  code: string;
+  label: string;
+};
+
+export type IssueCategoryOption = {
+  id: number;
+  code: string;
+  label: string;
+  fault_codes: FaultCodeOption[];
+};
+
+export type IssueOptionsFetchResult = {
+  categories: IssueCategoryOption[];
+  issueOptionsUnreachable: boolean;
+};
+
 export type RepairJobPublic = {
   job_reference: string;
   status: string;
@@ -56,9 +75,62 @@ async function getJson<T>(path: string): Promise<T | null> {
   }
 }
 
+export type DeviceCatalogFetchResult = {
+  devices: DeviceCatalog[];
+  /** Connection refused, timeout, or other network failure (empty list may also mean no data). */
+  catalogUnreachable: boolean;
+};
+
+/**
+ * Same as `/api/devices/` but reports whether the failure was likely a dead API host (for UX hints).
+ */
+export async function fetchIssueOptionsDetailed(): Promise<IssueOptionsFetchResult> {
+  const base = getApiBase();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${base}/api/booking/issue-options/`, {
+      next: { revalidate: 300 },
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      return { categories: [], issueOptionsUnreachable: false };
+    }
+    const data = (await res.json()) as { categories?: IssueCategoryOption[] };
+    const categories = Array.isArray(data.categories) ? data.categories : [];
+    return { categories, issueOptionsUnreachable: false };
+  } catch {
+    return { categories: [], issueOptionsUnreachable: true };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function fetchDevicesDetailed(): Promise<DeviceCatalogFetchResult> {
+  const base = getApiBase();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${base}/api/devices/`, {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      return { devices: [], catalogUnreachable: false };
+    }
+    const data = (await res.json()) as unknown;
+    const devices = Array.isArray(data) ? (data as DeviceCatalog[]) : [];
+    return { devices, catalogUnreachable: false };
+  } catch {
+    return { devices: [], catalogUnreachable: true };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export async function fetchDevices(): Promise<DeviceCatalog[]> {
-  const data = await getJson<DeviceCatalog[]>("/api/devices/");
-  return Array.isArray(data) ? data : [];
+  const { devices } = await fetchDevicesDetailed();
+  return devices;
 }
 
 export async function fetchRepairJobs(): Promise<RepairJobPublic[]> {

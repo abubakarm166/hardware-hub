@@ -52,7 +52,9 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-- API: [http://127.0.0.1:8000/api/health/](http://127.0.0.1:8000/api/health/), [http://127.0.0.1:8000/api/devices/](http://127.0.0.1:8000/api/devices/), [http://127.0.0.1:8000/api/repair-jobs/](http://127.0.0.1:8000/api/repair-jobs/), `POST /api/contact/` (contact form — also proxied via Next at `/api/contact`)
+- API: `GET /api/health/`, `GET /api/devices/`, `GET /api/repair-jobs/` (demo list), `POST /api/contact/`, `POST /api/tracking/lookup/` (job ref + email), `POST /api/auth/token/` (JWT), `GET /api/partner/me/`, `POST /api/partner/rma/bulk/`, `GET /api/partner/invoices/` — Next.js proxies several of these under `frontend/src/app/api/…`.
+- **Partner portal:** create a Django user, add an **Organization** (e.g. seed creates `demo-corp`), link the user under **Organization members**, then sign in at `/partner/login`.
+- **Track demo:** after `seed_dummy_data`, use job `HH-DEMO-240001` and email `demo-track@hardwarehub.test`.
 - Admin: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) — create superuser with `python manage.py createsuperuser`
 
 ### PostgreSQL
@@ -80,9 +82,11 @@ This gives a **live staging URL** for stakeholder review without committing secr
 
 For a fuller explanation of Phase 1 and how the pieces fit together, see **[docs/PHASE1.md](docs/PHASE1.md)**.
 
+**Phase 2 (how we build the operational product):** **[docs/PHASE2.md](docs/PHASE2.md)** — milestones, workstreams, and repo touchpoints.
+
 Implemented: project structure, basic DB models (`DeviceCatalog`, `RepairJob`, `AuditLog`), health API, Home + Services UI, responsive layout.
 
-Not in scope yet: Vision ERP, payments, courier APIs, auth flows.
+Not in scope yet: full ERP sync, payments, courier APIs, auth flows.
 
 ## Ownership
 

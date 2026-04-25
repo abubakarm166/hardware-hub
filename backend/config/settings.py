@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
@@ -182,6 +183,12 @@ STATIC_URL = "static/"
 # Required for `manage.py collectstatic` (local deploys, Docker build, WhiteNoise in production).
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# User uploads (repair intake documents). Use S3-compatible storage in production when ready.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 40 * 1024 * 1024
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -197,9 +204,19 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -210,3 +227,72 @@ CORS_ALLOWED_ORIGINS = [
     ).split(",")
     if o.strip()
 ]
+
+
+def _first_nonempty_env(*keys: str) -> str:
+    for key in keys:
+        value = os.environ.get(key, "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _first_env_int(*keys: str, default: int) -> int:
+    for key in keys:
+        raw = os.environ.get(key, "").strip()
+        if raw:
+            try:
+                return int(raw)
+            except ValueError:
+                pass
+    return default
+
+
+def _first_env_bool(*keys: str, default: bool) -> bool:
+    for key in keys:
+        if key in os.environ and os.environ[key].strip() != "":
+            return os.environ[key].lower() in ("1", "true", "yes")
+    return default
+
+
+# --- ERP-agnostic warranty HTTP (book repair step 2) ---
+# Point at any HTTPS warranty endpoint (future ERP, middleware, or iPaaS). Not tied to a vendor name.
+# Preferred env names: ERP_WARRANTY_* or WARRANTY_PROVIDER_*.
+# Legacy: VISION_WARRANTY_* is still read if the newer keys are unset.
+# POST JSON: device_catalog_id, brand, model_name, sku, imei — see apps/api/warranty_resolve.py.
+# Response JSON: { "in_warranty": bool, "summary"?: str, "next_action"?: ... }
+ERP_WARRANTY_API_URL = _first_nonempty_env(
+    "ERP_WARRANTY_API_URL",
+    "WARRANTY_PROVIDER_API_URL",
+    "VISION_WARRANTY_API_URL",
+)
+ERP_WARRANTY_API_KEY = _first_nonempty_env(
+    "ERP_WARRANTY_API_KEY",
+    "WARRANTY_PROVIDER_API_KEY",
+    "VISION_WARRANTY_API_KEY",
+)
+ERP_WARRANTY_API_TIMEOUT = _first_env_int(
+    "ERP_WARRANTY_API_TIMEOUT",
+    "WARRANTY_PROVIDER_API_TIMEOUT",
+    "VISION_WARRANTY_API_TIMEOUT",
+    default=15,
+)
+ERP_WARRANTY_VERIFY_SSL = _first_env_bool(
+    "ERP_WARRANTY_VERIFY_SSL",
+    "WARRANTY_PROVIDER_VERIFY_SSL",
+    "VISION_WARRANTY_VERIFY_SSL",
+    default=True,
+)
+ERP_WARRANTY_FALLBACK_STUB = _first_env_bool(
+    "ERP_WARRANTY_FALLBACK_STUB",
+    "WARRANTY_PROVIDER_FALLBACK_STUB",
+    "VISION_WARRANTY_FALLBACK_STUB",
+    default=True,
+)
+
+# Backward compatibility for code or docs that still reference VISION_* on settings.
+VISION_WARRANTY_API_URL = ERP_WARRANTY_API_URL
+VISION_WARRANTY_API_KEY = ERP_WARRANTY_API_KEY
+VISION_WARRANTY_API_TIMEOUT = ERP_WARRANTY_API_TIMEOUT
+VISION_WARRANTY_VERIFY_SSL = ERP_WARRANTY_VERIFY_SSL
+VISION_WARRANTY_FALLBACK_STUB = ERP_WARRANTY_FALLBACK_STUB

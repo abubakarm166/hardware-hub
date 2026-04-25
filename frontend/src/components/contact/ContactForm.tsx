@@ -9,6 +9,8 @@ export function ContactForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  /** Honeypot — leave empty; bots often fill hidden fields. */
+  const [honeypot, setHoneypot] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -35,7 +37,7 @@ export function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message }),
+        body: JSON.stringify({ name, email, phone, message, website: honeypot }),
       });
       const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
       if (!res.ok) {
@@ -64,6 +66,7 @@ export function ContactForm() {
       setEmail("");
       setPhone("");
       setMessage("");
+      setHoneypot("");
     } catch {
       setErrors({ _general: "Network error. Please try again." });
     } finally {
@@ -91,6 +94,16 @@ export function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <input
+        type="text"
+        name="website"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden
+        className="absolute left-[-9999px] h-px w-px opacity-0"
+      />
       {errors._general ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {errors._general}

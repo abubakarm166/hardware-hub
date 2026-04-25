@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BookRepairWizard } from "@/components/book-repair/BookRepairWizard";
 import { PageHero } from "@/components/ui/PageHero";
-import { fetchDevices } from "@/lib/api";
+import { fetchDevicesDetailed, fetchIssueOptionsDetailed } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Book a repair",
@@ -9,36 +10,26 @@ export const metadata: Metadata = {
 };
 
 export default async function BookRepairPage() {
-  const devices = await fetchDevices();
-  const samples = devices.slice(0, 6);
+  const [{ devices, catalogUnreachable }, { categories, issueOptionsUnreachable }] =
+    await Promise.all([fetchDevicesDetailed(), fetchIssueOptionsDetailed()]);
 
   return (
     <>
       <PageHero
         eyebrow="Booking"
         title="Book a repair"
-        description="Online booking with IMEI or model lookup, warranty checks, quotes, uploads, and courier scheduling will ship in a later phase. Example models below come from the seeded catalog when the API is available."
+        description="End-to-end intake: device, issue codes, warranty check, quote, optional documents (PDF/photos), your details, then confirm — we create a repair job, store uploads for staff, and keep a structured payload for external systems."
       />
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-content px-6 pb-20 pt-12 lg:px-8">
-          {samples.length > 0 ? (
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-                Example models (catalog)
-              </p>
-              <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                {samples.map((d) => (
-                  <li
-                    key={d.id}
-                    className="rounded-xl border border-slate-200 bg-[#f8fafc] px-5 py-4 text-sm shadow-sm"
-                  >
-                    <span className="font-medium text-slate-900">{d.brand}</span>
-                    <span className="text-slate-600"> · {d.model_name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+          <div className="mx-auto max-w-2xl">
+            <BookRepairWizard
+              devices={devices}
+              issueCategories={categories}
+              catalogUnreachable={catalogUnreachable}
+              issueOptionsUnreachable={issueOptionsUnreachable}
+            />
+          </div>
 
           <Link
             href="/"
