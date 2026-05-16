@@ -1,34 +1,91 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   normalizeWarrantySource,
   type BookRepairIssuePayload,
   type WarrantyCheckResponse,
 } from "@/lib/booking";
-import type { BookRepairStep1Payload } from "./BookRepairStep1";
+import {
+  formatStep1DeviceLabel,
+  step1Brand,
+  step1WarrantyRequestBody,
+  type BookRepairStep1Payload,
+} from "@/lib/bookRepairMakes";
 
 type Props = {
   step1: BookRepairStep1Payload;
   issue: BookRepairIssuePayload;
+  initialWarranty?: WarrantyCheckResponse | null;
   onBack: () => void;
   onNext: (warranty: WarrantyCheckResponse) => void;
 };
 
-export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
-  const [status, setStatus] = useState<"loading" | "error" | "ready">("loading");
+function formatPurchaseDateForInput(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!match) return "";
+  return `${match[1]}/${match[2]}/${match[3]}`;
+}
+
+const OEM_WARRANTY_MONTHS: { brand: string; months: number }[] = [
+  { brand: "Apple", months: 12 },
+  { brand: "Huawei", months: 24 },
+  { brand: "Samsung", months: 24 },
+  { brand: "OPPO", months: 24 },
+  { brand: "HONOR", months: 24 },
+];
+
+function parsePurchaseDateInput(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const normalized = trimmed.replace(/\//g, "-");
+  const match = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(normalized);
+  if (!match) return null;
+  const y = Number(match[1]);
+  const m = Number(match[2]);
+  const d = Number(match[3]);
+  if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+  const iso = `${String(y).padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  const parsed = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  if (parsed.getFullYear() !== y || parsed.getMonth() + 1 !== m || parsed.getDate() !== d) return null;
+  return iso;
+}
+
+export function BookRepairStep2({
+  step1,
+  issue,
+  initialWarranty = null,
+  onBack,
+  onNext,
+}: Props) {
+  const [purchaseDateInput, setPurchaseDateInput] = useState(() =>
+    formatPurchaseDateForInput(initialWarranty?.purchase_date)
+  );
+  const [status, setStatus] = useState<"idle" | "loading" | "error" | "ready">(() =>
+    initialWarranty ? "ready" : "idle"
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [result, setResult] = useState<WarrantyCheckResponse | null>(null);
+  const [result, setResult] = useState<WarrantyCheckResponse | null>(initialWarranty);
+  const [dateTouched, setDateTouched] = useState(false);
+
+  const purchaseIso = parsePurchaseDateInput(purchaseDateInput);
+  const deviceBrand = step1Brand(step1);
 
   const runCheck = useCallback(async () => {
+    setDateTouched(true);
+    if (!purchaseIso) {
+      setErrorMessage("Enter a valid date of purchase (YYYY/MM/DD).");
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
     setErrorMessage(null);
     setResult(null);
 
-    const body =
-      step1.mode === "catalog"
-        ? { device_catalog_id: step1.device.id, imei: "" }
-        : { imei: step1.imei };
+    const body = step1WarrantyRequestBody(step1, purchaseIso);
 
     try {
       const res = await fetch("/api/booking/warranty-check", {
@@ -62,9 +119,11 @@ export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
       const normalized: WarrantyCheckResponse = {
         ...(data as WarrantyCheckResponse),
         disclaimer: typeof data.disclaimer === "string" ? data.disclaimer : "",
-        source: normalizeWarrantySource(
-          typeof data.source === "string" ? data.source : undefined
-        ),
+        source: normalizeWarrantySource(typeof data.source === "string" ? data.source : undefined),
+        purchase_date: purchaseIso,
+        brand: typeof data.brand === "string" ? data.brand : deviceBrand || null,
+        warranty_months:
+          typeof data.warranty_months === "number" ? data.warranty_months : null,
       };
       setResult(normalized);
       setStatus("ready");
@@ -72,38 +131,36 @@ export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
       setErrorMessage("Network error. Check your connection and try again.");
       setStatus("error");
     }
-  }, [step1]);
-
-  useEffect(() => {
-    void runCheck();
-  }, [runCheck]);
+  }, [step1, purchaseIso, deviceBrand]);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-        Step 3 — Warranty check
+        Step 4 — Manufacturer warranty check
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        We check warranty against our configured rules and integrations. Until your external
-        warranty API is connected, you still get a clear in-app result so the journey completes.
+        Enter your date of purchase and we&apos;ll check standard manufacturer warranty coverage using
+        OEM periods. Warranty repairs remain subject to physical inspection and policy rules.
       </p>
 
       <div className="mt-6 space-y-3 rounded-xl border border-slate-100 bg-[#f8fafc] px-4 py-3 text-sm text-slate-700">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Device</p>
-          {step1.mode === "catalog" ? (
-            <p className="mt-1">
-              <span className="font-medium text-slate-900">Model:</span> {step1.device.brand} ·{" "}
-              {step1.device.model_name}
-            </p>
-          ) : (
-            <p className="mt-1 font-mono text-sm">
-              <span className="font-sans font-medium text-slate-900">IMEI:</span> {step1.imei}
-            </p>
-          )}
+          <p className="mt-1">
+            <span className="font-medium text-slate-900">Device:</span>{" "}
+            {step1.mode === "imei" || step1.mode === "custom" ? (
+              <span className={step1.mode === "imei" ? "font-mono text-sm" : ""}>
+                {formatStep1DeviceLabel(step1)}
+              </span>
+            ) : (
+              formatStep1DeviceLabel(step1)
+            )}
+          </p>
         </div>
         <div className="border-t border-slate-200/80 pt-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Issue</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Fault description
+          </p>
           <p className="mt-1 text-slate-800">
             {issue.categoryLabel} · {issue.faultLabel}
           </p>
@@ -112,6 +169,72 @@ export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
           ) : null}
         </div>
       </div>
+
+      <label className="mt-6 block max-w-xs">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          Date of purchase
+        </span>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={purchaseDateInput}
+          onChange={(e) => {
+            setPurchaseDateInput(e.target.value);
+            if (status === "ready") {
+              setStatus("idle");
+              setResult(null);
+            }
+          }}
+          onBlur={() => setDateTouched(true)}
+          placeholder="YYYY/MM/DD"
+          autoComplete="off"
+          className={`mt-1.5 w-full rounded-xl border bg-[#f8fafc] px-4 py-3 text-sm font-mono outline-none focus:ring-2 focus:ring-brand/25 ${
+            dateTouched && !purchaseIso && purchaseDateInput.trim()
+              ? "border-red-300 focus:border-red-400"
+              : "border-slate-200 focus:border-brand"
+          }`}
+        />
+        {dateTouched && purchaseDateInput.trim() && !purchaseIso ? (
+          <span className="mt-1 block text-xs text-red-600">Use format YYYY/MM/DD (e.g. 2024/06/15).</span>
+        ) : (
+          <span className="mt-1 block text-xs text-slate-500">
+            {deviceBrand
+              ? `Standard ${deviceBrand} warranty periods apply from this date.`
+              : "Standard OEM warranty periods apply from this date."}
+          </span>
+        )}
+      </label>
+
+      <div className="mt-4 overflow-x-auto rounded-xl border border-slate-100">
+        <table className="w-full min-w-[280px] text-left text-xs text-slate-700">
+          <thead className="bg-slate-50 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <tr>
+              <th className="px-3 py-2">Manufacturer</th>
+              <th className="px-3 py-2">Warranty period</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {OEM_WARRANTY_MONTHS.map((row) => (
+              <tr key={row.brand}>
+                <td className="px-3 py-2 font-medium text-slate-800">{row.brand}</td>
+                <td className="px-3 py-2">{row.months} months</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {status === "idle" ? (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => void runCheck()}
+            className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95"
+          >
+            Check warranty
+          </button>
+        </div>
+      ) : null}
 
       {status === "loading" ? (
         <div className="mt-8 flex items-center gap-3 text-sm text-slate-600">
@@ -156,14 +279,6 @@ export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
               ) : null}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-slate-800">{result.summary}</p>
-            <p className="mt-3 text-xs text-slate-600">
-              Next:{" "}
-              <span className="font-medium text-slate-800">
-                {result.next_action === "warranty_intake"
-                  ? "Warranty intake channel"
-                  : "Automated out-of-warranty quote"}
-              </span>
-            </p>
           </div>
           {result.disclaimer ? (
             <p className="text-xs leading-relaxed text-slate-500">{result.disclaimer}</p>
@@ -177,7 +292,7 @@ export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
           onClick={onBack}
           className="text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          ← Back to issue details
+          ← Back to step 3
         </button>
         {status === "ready" && result ? (
           <button
@@ -185,7 +300,7 @@ export function BookRepairStep2({ step1, issue, onBack, onNext }: Props) {
             onClick={() => onNext(result)}
             className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95"
           >
-            Continue to quote
+            Continue to documents
           </button>
         ) : null}
       </div>

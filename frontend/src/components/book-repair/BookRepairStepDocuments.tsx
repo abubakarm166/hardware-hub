@@ -54,12 +54,10 @@ export function BookRepairStepDocuments({ onBack, onNext }: Props) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-        Step 5 — Documents (optional)
+        Step 5 — What are you uploading
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        Proof of purchase, photos of the damage, or other PDFs/images help us process your repair
-        faster. You can skip this step — files are optional. Max {MAX_FILES} files, {MAX_MB} MB each
-        (PDF, JPG, PNG, WEBP).
+      Uploading proof of purchase, clear photos of the damage, or any other relevant documents helps us better prepare for your repair in advance. This step is completely optional - feel free to skip it if you don’t have files ready - but the more information you share, the more accurately we can anticipate the right parts and get you back online as quickly as possible.
       </p>
 
       <label className="mt-6 block">
@@ -135,14 +133,14 @@ export function BookRepairStepDocuments({ onBack, onNext }: Props) {
           onClick={onBack}
           className="text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          ← Back to quote
+          ← Back to step 4
         </button>
         <button
           type="button"
           onClick={handleContinue}
           className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95"
         >
-          {files.length > 0 ? "Continue with documents" : "Skip and continue"}
+          {files.length > 0 ? "Continue to review" : "Skip and continue"}
         </button>
       </div>
     </div>

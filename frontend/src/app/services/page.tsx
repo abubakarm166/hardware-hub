@@ -1,44 +1,16 @@
 import type { Metadata } from "next";
+import { BusinessServicesPageSection } from "@/components/services/BusinessServicesPageSection";
+import { ConsumerServicesSection } from "@/components/services/ConsumerServicesSection";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { PageHero } from "@/components/ui/PageHero";
 import { Section } from "@/components/ui/Section";
-import { IconBriefcase, IconShield, IconTruck, IconWrench } from "@/components/icons/ServiceLineIcons";
 import { fetchDevices } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Warranty and out-of-warranty repairs, corporate repair management, and logistics for South Africa.",
+    "Precision, perfection and premium device repair and protection services for consumers, entrepreneurs and businesses across South Africa.",
 };
-
-const pillars: {
-  title: string;
-  body: string;
-  Icon: typeof IconShield;
-  popular?: boolean;
-}[] = [
-  {
-    title: "Warranty repairs",
-    body: "Manufacturer-aligned diagnostics, parts discipline, and documentation suitable for warranty claims. Ideal when your device is still covered and you need a trusted service path.",
-    Icon: IconShield,
-    popular: true,
-  },
-  {
-    title: "Out-of-warranty repairs",
-    body: "Structured assessments with clear scope and pricing before work proceeds. Designed to reduce surprises and keep you informed at every step.",
-    Icon: IconWrench,
-  },
-  {
-    title: "Corporate repair management",
-    body: "Volume intake, job visibility, and reporting for insurers, mobile operators, and fleet managers. SLAs and invoicing will connect to your workflows in upcoming phases.",
-    Icon: IconBriefcase,
-  },
-  {
-    title: "Logistics services",
-    body: "Walk-in or courier-based options to suit how your organisation moves devices. Courier integrations will be wired in when the platform connects to partner APIs.",
-    Icon: IconTruck,
-  },
-];
 
 const roadmapItems = [
   "ERP integration for warranty checks and job creation",
@@ -53,39 +25,16 @@ export default async function ServicesPage() {
     <>
       <PageHero
         eyebrow="Services"
-        title="Next-generation repair and logistics built for clarity."
-        description="Hardware Hub is a next-generation mobile device repair and aftersales services company, purpose-built for scale, compliance, and trust. We operate a best-in-class, ISO-aligned high-volume workshop that redefines service excellence through precision, transparency, and customer-centric delivery."
+        title={<span className="text-brand">Services</span>}
       />
 
       <div className="border-b border-slate-200 bg-white">
         <div className="space-y-24 pb-24 pt-16 md:space-y-28 md:pb-32 md:pt-20">
-          <Section
-            eyebrow="What we do"
-            title="Core service lines"
-            description="Each line is designed to stand alone or combine as your needs grow."
-          >
-            <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-              {pillars.map((p) => (
-                <article
-                  key={p.title}
-                  className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-shadow hover:shadow-md md:p-10"
-                >
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
-                    <p.Icon />
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-xl font-semibold text-slate-900">{p.title}</h2>
-                    {p.popular ? (
-                      <span className="rounded-full bg-brand/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand">
-                        Popular
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">{p.body}</p>
-                </article>
-              ))}
-            </div>
-          </Section>
+          <section className="mx-auto max-w-content px-6 lg:px-8">
+            <ConsumerServicesSection />
+          </section>
+
+          <BusinessServicesPageSection />
 
           <section className="scroll-mt-24 border-t border-slate-200 bg-[#f8fafc] py-16 md:py-24">
             <div className="mx-auto max-w-content px-6 lg:px-8">

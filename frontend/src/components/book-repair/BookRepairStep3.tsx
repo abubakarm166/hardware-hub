@@ -7,7 +7,11 @@ import {
   formatZarFromCents,
   type WarrantyCheckResponse,
 } from "@/lib/booking";
-import type { BookRepairStep1Payload } from "./BookRepairStep1";
+import {
+  formatStep1DeviceLabel,
+  step1SubmitDeviceFields,
+  type BookRepairStep1Payload,
+} from "@/lib/bookRepairMakes";
 
 type Props = {
   step1: BookRepairStep1Payload;
@@ -27,9 +31,10 @@ export function BookRepairStep3({ step1, issue, warranty, onBack, onNext }: Prop
     setErrorMessage(null);
     setQuote(null);
 
+    const { device_catalog_id, imei } = step1SubmitDeviceFields(step1);
     const body = {
-      device_catalog_id: step1.mode === "catalog" ? step1.device.id : null,
-      imei: step1.mode === "imei" ? step1.imei : "",
+      device_catalog_id,
+      imei,
       in_warranty: warranty.in_warranty,
       next_action: warranty.next_action,
     };
@@ -78,7 +83,7 @@ export function BookRepairStep3({ step1, issue, warranty, onBack, onNext }: Prop
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-        Step 4 — Quote
+        Step 5 — Quote
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">
         {warranty.in_warranty
@@ -88,16 +93,14 @@ export function BookRepairStep3({ step1, issue, warranty, onBack, onNext }: Prop
 
       <div className="mt-6 space-y-2 rounded-xl border border-slate-100 bg-[#f8fafc] px-4 py-3 text-sm text-slate-700">
         <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Context</p>
-        {step1.mode === "catalog" ? (
-          <p className="mt-1">
-            <span className="font-medium text-slate-900">Model:</span> {step1.device.brand} ·{" "}
-            {step1.device.model_name}
-          </p>
-        ) : (
-          <p className="mt-1 font-mono text-xs">
-            <span className="font-sans font-medium text-slate-900">IMEI:</span> {step1.imei}
-          </p>
-        )}
+        <p className="mt-1">
+          <span className="font-medium text-slate-900">Device:</span>{" "}
+          {step1.mode === "imei" ? (
+            <span className="font-mono text-xs">{formatStep1DeviceLabel(step1)}</span>
+          ) : (
+            formatStep1DeviceLabel(step1)
+          )}
+        </p>
         <p className="text-xs text-slate-600">
           Issue: {issue.categoryLabel} · {issue.faultLabel}
         </p>
@@ -207,7 +210,7 @@ export function BookRepairStep3({ step1, issue, warranty, onBack, onNext }: Prop
           onClick={onBack}
           className="text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          ← Back to warranty
+          ← Back to step 4
         </button>
         {status === "ready" && quote ? (
           <button

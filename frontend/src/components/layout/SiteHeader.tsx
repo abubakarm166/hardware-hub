@@ -19,21 +19,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-[#f8fafc]">
       <div className="mx-auto flex max-w-content items-center justify-between gap-6 px-6 py-4 lg:px-8">
-        <Link
-          href="/"
-          className="flex shrink-0 items-center gap-2.5 sm:gap-3"
-        >
+        <Link href="/" className="flex shrink-0 items-center">
           <Image
-            src="/hardware-hub-logo.png"
-            alt=""
-            width={48}
-            height={48}
-            className="h-9 w-9 object-contain sm:h-10 sm:w-10"
+            src="/logo-removebg-preview.png"
+            alt="Hardware Hub"
+            width={800}
+            height={312}
+            className="h-10 w-auto object-contain sm:h-12"
             priority
           />
-          <span className="font-sans text-lg font-semibold tracking-tight text-foreground sm:text-xl">
-            Hardware Hub
-          </span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
           {mainNav.map((item) => (

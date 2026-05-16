@@ -20,6 +20,7 @@ export type TrackLookupSuccess = {
 
 export function TrackRepairLookup() {
   const [reference, setReference] = useState("");
+  const [imei, setImei] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,12 +31,27 @@ export function TrackRepairLookup() {
     setLoading(true);
     setError(null);
     setResult(null);
+
+    const ref = reference.trim();
+    const imeiDigits = imei.replace(/\D/g, "");
+    if (ref && imei.trim()) {
+      setError("Enter either a job reference or an IMEI — not both.");
+      setLoading(false);
+      return;
+    }
+    if (!ref && imeiDigits.length !== 15) {
+      setError("Enter your 15-digit IMEI or your job reference, and the email on your booking.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/tracking/lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          job_reference: reference.trim(),
+          job_reference: ref,
+          imei: ref ? "" : imei.trim(),
           email: email.trim(),
         }),
       });
@@ -61,13 +77,14 @@ export function TrackRepairLookup() {
       <form onSubmit={onSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
         <h2 className="font-serif text-lg font-medium text-slate-900">Look up your repair</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Enter the <strong>job reference</strong> we gave you and the <strong>email</strong> on the
-          job (same as used when booking).
+          Enter your <strong>job number</strong> or <strong>IMEI</strong>, plus the{" "}
+          <strong>email</strong> you used when booking. We use the email to protect your privacy — only the person on
+          the job can see status.
         </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div>
+        <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="min-w-0 flex-1">
             <label htmlFor="track-ref" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Job reference
+              Job No.
             </label>
             <input
               id="track-ref"
@@ -78,23 +95,41 @@ export function TrackRepairLookup() {
               autoComplete="off"
             />
           </div>
-          <div>
-            <label htmlFor="track-email" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Email on file
+          <p className="shrink-0 text-center text-xs font-semibold uppercase tracking-wider text-slate-400 md:px-1 md:pb-3">
+            or
+          </p>
+          <div className="min-w-0 flex-1">
+            <label htmlFor="track-imei" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              IMEI No.
             </label>
             <input
-              id="track-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm"
-              placeholder="you@example.com"
-              autoComplete="email"
+              id="track-imei"
+              value={imei}
+              onChange={(e) => setImei(e.target.value)}
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-4 py-3 font-mono text-sm"
+              placeholder="15 digits"
+              inputMode="numeric"
+              autoComplete="off"
             />
           </div>
         </div>
+        <div className="mt-4">
+          <label htmlFor="track-email" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Email on booking
+          </label>
+          <input
+            id="track-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-1.5 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm"
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+        </div>
         <p className="mt-3 text-xs text-slate-500">
-          Demo after seed: reference <code className="rounded bg-slate-100 px-1">HH-DEMO-240001</code> and email{" "}
+          Demo (after seed): reference <code className="rounded bg-slate-100 px-1">HH-DEMO-240001</code> or IMEI{" "}
+          <code className="rounded bg-slate-100 px-1">356789012345678</code> with email{" "}
           <code className="rounded bg-slate-100 px-1">demo-track@hardwarehub.test</code>
         </p>
         <button
@@ -102,7 +137,7 @@ export function TrackRepairLookup() {
           disabled={loading}
           className="mt-6 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
-          {loading ? "Searching…" : "Track repair"}
+          {loading ? "Searching…" : "Search"}
         </button>
       </form>
 

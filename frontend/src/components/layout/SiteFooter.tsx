@@ -6,20 +6,17 @@ export function SiteFooter() {
     <footer className="border-t border-white/10 bg-[#0a1628] text-white">
       <div className="mx-auto grid max-w-content gap-10 px-6 py-14 lg:grid-cols-3 lg:px-8">
         <div>
-          <Link href="/" className="inline-flex items-center gap-1.5 sm:gap-2.5">
+          <Link href="/" className="inline-flex items-center">
             <Image
-              src="/hardware-hub-logo.png"
-              alt=""
-              width={40}
-              height={40}
-              className="h-8 w-8 object-contain opacity-95 brightness-0 invert"
+              src="/logo-removebg-preview.png"
+              alt="Hardware Hub"
+              width={800}
+              height={312}
+              className="h-10 w-auto object-contain sm:h-12"
             />
-            <span className="font-serif text-lg font-semibold tracking-tight text-white">
-              Hardware Hub
-            </span>
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/70">
-            Premium multi-brands service solutions for consumers and businesses.
+            Premium multi-brand service solutions for consumers and businesses.
           </p>
         </div>
         <div>
@@ -51,7 +48,7 @@ export function SiteFooter() {
         </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-brand">
-            Connect
+            Let&apos;s Connect
           </p>
           <p className="mt-4 text-sm text-white/70">
             Placeholder address, South Africa

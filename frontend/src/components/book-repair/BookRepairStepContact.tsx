@@ -4,22 +4,24 @@ import { useState } from "react";
 import type { BookRepairContactPayload } from "@/lib/booking";
 
 type Props = {
+  initial?: BookRepairContactPayload | null;
   onBack: () => void;
   onNext: (payload: BookRepairContactPayload) => void;
 };
 
 const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function BookRepairStepContact({ onBack, onNext }: Props) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [line1, setLine1] = useState("");
-  const [line2, setLine2] = useState("");
-  const [city, setCity] = useState("");
-  const [province, setProvince] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-  const [country, setCountry] = useState("ZA");
+export function BookRepairStepContact({ initial = null, onBack, onNext }: Props) {
+  const [fullName, setFullName] = useState(initial?.fullName ?? "");
+  const [email, setEmail] = useState(initial?.email ?? "");
+  const [phone, setPhone] = useState(initial?.phone ?? "");
+  const [alternativePhone, setAlternativePhone] = useState(initial?.alternativePhone ?? "");
+  const [line1, setLine1] = useState(initial?.line1 ?? "");
+  const [line2, setLine2] = useState(initial?.line2 ?? "");
+  const [city, setCity] = useState(initial?.city ?? "");
+  const [province, setProvince] = useState(initial?.province ?? "");
+  const [postalCode, setPostalCode] = useState(initial?.postalCode ?? "");
+  const [country, setCountry] = useState(initial?.country ?? "ZA");
   const [touched, setTouched] = useState(false);
 
   const emailOk = emailRe.test(email.trim());
@@ -38,6 +40,7 @@ export function BookRepairStepContact({ onBack, onNext }: Props) {
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
+      alternativePhone: alternativePhone.trim(),
       line1: line1.trim(),
       line2: line2.trim(),
       city: city.trim(),
@@ -50,11 +53,13 @@ export function BookRepairStepContact({ onBack, onNext }: Props) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-        Step 6 — Your details &amp; address
+        Step 3 — Tell us about You
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        We&apos;ll use this for booking confirmation and courier / return logistics. POPIA: we only
-        store what we need to fulfil the repair.
+        We&apos;ll use this information to confirm your booking, arrange courier collection and
+        returns, and keep you fully informed every step of the way. In line with POPIA, we only store
+        what we need to complete your repair. If this is your primary device, please also add an
+        alternative contact number so we can stay in touch without any hassle.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -109,6 +114,18 @@ export function BookRepairStepContact({ onBack, onNext }: Props) {
         </label>
         <label className="block sm:col-span-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Alternative number
+          </span>
+          <input
+            value={alternativePhone}
+            onChange={(e) => setAlternativePhone(e.target.value)}
+            autoComplete="tel"
+            placeholder="e.g. partner, family, or work number"
+            className="mt-1.5 w-full rounded-xl border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-brand focus:ring-2 focus:ring-brand/25"
+          />
+        </label>
+        <label className="block sm:col-span-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             Line 2 (optional)
           </span>
           <input
@@ -150,9 +167,7 @@ export function BookRepairStepContact({ onBack, onNext }: Props) {
           />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Country (ISO)
-          </span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Country</span>
           <input
             value={country}
             onChange={(e) => setCountry(e.target.value.toUpperCase())}
@@ -174,14 +189,14 @@ export function BookRepairStepContact({ onBack, onNext }: Props) {
           onClick={onBack}
           className="text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          ← Back to documents
+          ← Back to step 2
         </button>
         <button
           type="button"
           onClick={handleContinue}
           className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95"
         >
-          Continue to review
+          Continue to warranty check
         </button>
       </div>
     </div>

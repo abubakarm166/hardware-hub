@@ -16,7 +16,7 @@ function safeJson(text: string): Record<string, unknown> {
 }
 
 export async function POST(request: Request) {
-  let body: { job_reference?: string; email?: string };
+  let body: { job_reference?: string; imei?: string; email?: string };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -34,7 +34,8 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        job_reference: body.job_reference?.trim(),
+        job_reference: body.job_reference?.trim() ?? "",
+        imei: body.imei?.trim() ?? "",
         email: body.email?.trim(),
       }),
       signal: controller.signal,

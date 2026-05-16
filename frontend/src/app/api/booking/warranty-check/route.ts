@@ -24,6 +24,8 @@ function safeJson(text: string): Record<string, unknown> {
 type Body = {
   device_catalog_id?: number;
   imei?: string;
+  brand?: string;
+  purchase_date?: string;
 };
 
 export async function POST(request: Request) {
@@ -47,6 +49,8 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         device_catalog_id: body.device_catalog_id,
         imei: typeof body.imei === "string" ? body.imei.trim() : "",
+        brand: typeof body.brand === "string" ? body.brand.trim() : "",
+        purchase_date: typeof body.purchase_date === "string" ? body.purchase_date.trim() : undefined,
       }),
       signal: controller.signal,
     });

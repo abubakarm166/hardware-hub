@@ -7,6 +7,7 @@ import type { BookRepairIssuePayload } from "@/lib/booking";
 type Props = {
   categories: IssueCategoryOption[];
   optionsUnreachable?: boolean;
+  initial?: BookRepairIssuePayload | null;
   onBack: () => void;
   onNext: (payload: BookRepairIssuePayload) => void;
 };
@@ -14,12 +15,13 @@ type Props = {
 export function BookRepairStepIssue({
   categories,
   optionsUnreachable = false,
+  initial = null,
   onBack,
   onNext,
 }: Props) {
-  const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [faultCodeId, setFaultCodeId] = useState<number | null>(null);
-  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState<number | null>(initial?.categoryId ?? null);
+  const [faultCodeId, setFaultCodeId] = useState<number | null>(initial?.faultCodeId ?? null);
+  const [description, setDescription] = useState(initial?.description ?? "");
 
   const selectedCat = useMemo(
     () => categories.find((c) => c.id === categoryId) ?? null,
@@ -35,6 +37,15 @@ export function BookRepairStepIssue({
     const fc = first.fault_codes[0];
     setFaultCodeId(fc?.id ?? null);
   }, [categories, categoryId]);
+
+  useEffect(() => {
+    if (!initial || categories.length === 0) return;
+    const cat = categories.find((c) => c.id === initial.categoryId);
+    if (!cat) return;
+    setCategoryId(initial.categoryId);
+    setFaultCodeId(initial.faultCodeId);
+    setDescription(initial.description);
+  }, [initial, categories]);
 
   useEffect(() => {
     if (!selectedCat || faults.length === 0) return;
@@ -69,11 +80,13 @@ export function BookRepairStepIssue({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-        Step 2 — What&apos;s wrong?
+        Step 2 — Tell us what happened?
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">
-        Choose the category and fault that best match the problem. Add your own words below — that
-        helps our technicians prepare.
+        Choose the category and fault that best match your issue, then add any extra details in your
+        own words below. The more information you share, the better we can anticipate the right
+        parts, prepare them in advance while we wait for your device, and streamline the entire
+        repair process — getting you back online as quickly as possible.
       </p>
 
       {optionsUnreachable || categories.length === 0 ? (
@@ -104,7 +117,7 @@ export function BookRepairStepIssue({
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.label} ({c.code})
+                  {c.label}
                 </option>
               ))}
             </select>
@@ -122,7 +135,7 @@ export function BookRepairStepIssue({
             >
               {faults.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.label} ({f.code})
+                  {f.label}
                 </option>
               ))}
             </select>
@@ -160,7 +173,7 @@ export function BookRepairStepIssue({
             disabled={!canContinue}
             className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Continue to warranty check
+            Continue to your details
           </button>
         ) : null}
       </div>

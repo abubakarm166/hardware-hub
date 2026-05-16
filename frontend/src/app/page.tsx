@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { ContactForm } from "@/components/contact/ContactForm";
+import { BusinessServicesSection } from "@/components/home/BusinessServicesSection";
 import { IconBriefcase, IconShield, IconTruck, IconWrench } from "@/components/icons/ServiceLineIcons";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Section } from "@/components/ui/Section";
@@ -10,22 +11,22 @@ const services: {
 }[] = [
   {
     title: "Warranty repairs",
-    copy: "Authorised workflows aligned with manufacturer standards and documentation.",
+    copy: "Expert warranty servicing that meets every OEM specification, complete with detailed reporting and documentation you can trust.",
     Icon: IconShield,
   },
   {
     title: "Out-of-warranty",
-    copy: "Transparent assessments and quotes before work begins on your device.",
+    copy: "Request your repair online, see the exact cost upfront, and get your device restored to original condition with expert service you can trust.",
     Icon: IconWrench,
   },
   {
-    title: "Corporate programmes",
-    copy: "Fleet-scale repair, SLA visibility, and consolidated reporting for partners.",
+    title: "For Businesses",
+    copy: "Scalable B2B programs designed around your needs with custom SLAs, real-time visibility, consolidated reporting, and dedicated support ",
     Icon: IconBriefcase,
   },
   {
-    title: "Logistics",
-    copy: "Collection and return options designed for reliability across South Africa.",
+    title: "Value Added Services",
+    copy: "Protect your devices with trusted extended warranties, get fast and secure collection & delivery anywhere in South Africa, and let us safeguard every phone in your family.",
     Icon: IconTruck,
   },
 ];
@@ -97,48 +98,17 @@ export default function HomePage() {
           </div>
         </Section>
 
-        <Section
-          eyebrow="Business Services"
-          title="Service Solutions for insurers, operators, OEM&apos;s and distributors"
-          description="Dedicated portals, bulk intake, SLA dashboards, and invoicing - built for businesses of every size"
-        >
-          <div className="flex flex-col gap-6 rounded-2xl border border-slate-200 bg-[#f8fafc] p-8 md:flex-row md:items-center md:justify-between md:p-10">
-            <p className="max-w-xl text-sm leading-relaxed text-slate-700 md:text-base">
-              Phase 1 focuses on the public experience. Corporate tooling and integrations arrive in
-              later releases—architecture is ready for ERP, payments, and courier workflows.
-            </p>
-            <Link
-              href="/corporate"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#0a1628] px-6 py-3 text-center text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-95"
-            >
-              Corporate overview
-              <span aria-hidden>→</span>
-            </Link>
-          </div>
-        </Section>
+        <BusinessServicesSection />
 
         <Section
           id="contact"
           eyebrow="Connect"
           eyebrowRule
           title="Let’s talk about your aftersales service needs"
-          description="Reach out for service enquiries, partnerships, or enterprise programmes."
+          description="Feel free to connect with us regarding questions or specific solution needs."
         >
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm md:p-10">
-            <p className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-              <span className="inline-block h-2 w-2 rounded-full bg-brand" aria-hidden />
-              Email{" "}
-              <a
-                href="mailto:info@hardware-hub.co.za"
-                className="font-medium text-slate-900 underline-offset-4 hover:underline"
-              >
-                info@hardware-hub.co.za
-              </a>
-            </p>
-            <p className="mt-3 flex items-center gap-2 text-sm text-slate-600">
-              <span className="inline-block h-2 w-2 rounded-full bg-brand/70" aria-hidden />
-              Phone placeholder · Business hours SAST
-            </p>
+          <div className="rounded-2xl border border-slate-200 bg-[#eef6f8] p-8 shadow-sm md:p-10">
+            <ContactForm submitLabel="Submit" />
           </div>
         </Section>
       </div>

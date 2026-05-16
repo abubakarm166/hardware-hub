@@ -11,42 +11,42 @@ const segments: { id: string; title: string; body: string }[] = [
   {
     id: "oem",
     title: "OEM",
-    body: "Authorised repair programmes, parts discipline, and brand-aligned reporting for device makers. Architecture is ready for ERP and warranty system integration.",
+    body: "Authorised repair partner delivering compliant in- and out-of-warranty services at scale. Real-time integration, L1–L3 certified technicians, fast TAT and OEM insurance sales.",
   },
   {
     id: "mobile-operators",
-    title: "Mobile Operators",
-    body: "High-volume intake, SLA visibility, and logistics built for national subscriber bases and retail footprints.",
+    title: "Mobile Network Operators",
+    body: "Strategic repair and insurance partner for mobile network operators. High-volume authorised repairs, seamless insurance conversion and real-time visibility — reducing subscriber churn through exceptional service.",
   },
   {
     id: "mvno",
     title: "MVNO",
-    body: "Reduce churn with dependable repair paths, transparent job status, and customer-first communications.",
+    body: "End-to-end device service infrastructure to launch and scale your MVNO. Authorised repairs, warranty & insurance programmes designed to reduce churn and deliver premium customer experiences.",
   },
   {
     id: "fintechs-financing",
     title: "Fintechs & Financing",
-    body: "Align device protection and lifecycle events with lending, insurance, and BNPL products.",
+    body: "Device protection and repair solutions tailored for lending, insurance and BNPL products. Seamless claims processing and repair fulfilment that protect your portfolio and strengthen customer loyalty.",
   },
   {
     id: "businesses",
     title: "Businesses",
-    body: "Fleet repairs, consolidated billing, and portals that keep teams productive across sites.",
+    body: "Minimise costly device downtime for your team and keep your business moving. Register as a partner and experience Precision | Perfection | Premium repairs, collection and nationwide delivery.",
   },
   {
     id: "insurance",
     title: "Insurance",
-    body: "Claims-ready workflows, documentation, and workshop integration for carriers and UMAs.",
+    body: "Efficient claims processing and repair fulfilment for device insurers. Streamlined workflows, audit-ready quality control, fast TAT and high customer satisfaction at scale.",
   },
   {
     id: "resellers",
     title: "Resellers",
-    body: "Differentiate with aftersales bundles, RMA visibility, and partner-grade SLAs.",
+    body: "Premium after-sales support that helps resellers differentiate and build customer loyalty. Authorised repairs, RMA visibility, SLA compliance and partner-grade service.",
   },
   {
     id: "authorized-repair-network",
     title: "Authorized Repair Network",
-    body: "Accredited locations, quality standards, and tooling to grow footfall and customer loyalty.",
+    body: "Watch this space as we gear up our Authorized Repair Network — quality standards, tooling, and partner growth programmes.",
   },
 ];
 
@@ -55,58 +55,12 @@ export default function CorporatePage() {
     <>
       <PageHero
         eyebrow="For Businesses"
-        title="Corporate solutions"
-        description="Partner login, bulk RMA intake, and invoice lists are available as an MVP scaffold; deep ERP sync and SLA analytics follow when your system is chosen."
+        title="Business Solutions"
+        description="Hardware Hub is your trusted partner for corporate device repair and fleet management. We treat every staff and customer device with the utmost care during what can be a difficult time — managing risk at every step and ensuring your devices are returned in like-new condition with Precision | Perfection | Premium service."
       />
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-content px-6 pb-20 pt-12 lg:px-8">
-          <div className="rounded-2xl border border-slate-200 bg-[#f8fafc] p-8 md:p-10">
-            <p className="text-sm leading-relaxed text-slate-600 md:text-base">
-              Use{" "}
-              <Link href="/partner/login" className="font-medium text-brand hover:underline">
-                Partner login
-              </Link>{" "}
-              for B2B users created in Django admin. Bulk CSV is stored for now; ERP import and SLA
-              dashboards expand in Phase 2.
-            </p>
-          </div>
-
-          <section id="glossary" className="mt-14 scroll-mt-28">
-            <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-              Glossary: bulk RMA, SLA, invoices
-            </h2>
-            <dl className="mt-6 space-y-6 text-sm leading-relaxed text-slate-600">
-              <div>
-                <dt className="font-semibold text-slate-900">Bulk RMA</dt>
-                <dd className="mt-1">
-                  <strong>RMA</strong> (return merchandise authorisation) is how a device is accepted
-                  into repair under a partner reference. <strong>Bulk</strong> means uploading many
-                  devices at once (usually CSV) instead of one-by-one consumer booking.
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-slate-900">SLA</dt>
-                <dd className="mt-1">
-                  <strong>Service level agreement</strong> — agreed turnaround and quality targets
-                  (e.g. % of jobs within N days). The portal will surface SLA metrics when job data
-                  flows from your ERP or from rules in this platform.
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold text-slate-900">Invoices (B2B)</dt>
-                <dd className="mt-1">
-                  Billing documents for partners: repair charges, periods, and download links (PDF or
-                  external billing). Finance teams use them for reconciliation.
-                </dd>
-              </div>
-            </dl>
-            <p className="mt-4 text-xs text-slate-500">
-              Longer note for technical teams:{" "}
-              <code className="rounded bg-slate-100 px-1">docs/CORPORATE_PORTAL.md</code>
-            </p>
-          </section>
-
-          <section className="mt-16 scroll-mt-28" aria-labelledby="segments-heading">
+          <section className="scroll-mt-28" aria-labelledby="segments-heading">
             <h2 id="segments-heading" className="font-serif text-2xl font-medium text-slate-900 md:text-3xl">
               Who we serve
             </h2>

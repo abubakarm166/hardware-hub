@@ -8,6 +8,9 @@ type Body = {
   name?: string;
   email?: string;
   phone?: string;
+  company_name?: string;
+  region?: string;
+  lead_type?: string;
   message?: string;
   /** Honeypot — must be empty (bots often fill this). */
   website?: string;
@@ -60,6 +63,9 @@ export async function POST(request: Request) {
         name: body.name?.trim(),
         email: body.email?.trim(),
         phone: body.phone?.trim() ?? "",
+        company_name: body.company_name?.trim() ?? "",
+        region: body.region?.trim() ?? "",
+        lead_type: body.lead_type?.trim() ?? "",
         message: body.message?.trim(),
         website: typeof body.website === "string" ? body.website : "",
       }),

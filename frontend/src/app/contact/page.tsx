@@ -53,7 +53,7 @@ export default function ContactPage() {
                 Submissions are stored securely for follow-up (POPIA-aligned handling in production).
               </p>
               <div className="mt-8">
-                <ContactForm />
+                <ContactForm submitLabel="Send message" />
               </div>
             </div>
           </div>

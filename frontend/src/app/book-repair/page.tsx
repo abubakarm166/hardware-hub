@@ -18,7 +18,21 @@ export default async function BookRepairPage() {
       <PageHero
         eyebrow="Booking"
         title="Book a repair"
-        description="End-to-end intake: device, issue codes, warranty check, quote, optional documents (PDF/photos), your details, then confirm — we create a repair job, store uploads for staff, and keep a structured payload for external systems."
+        description={
+          <>
+            <p>Sorry to hear your device is giving you trouble.</p>
+            <p>
+              Follow our simple, step-by-step booking process below and we&apos;ll have you back online in the
+              fastest possible time — with Precision | Perfection | Premium service.
+            </p>
+            <p>
+              The more information and detail you provide (IMEI, model, fault description and photos), the faster your
+              repair moves. We use this upfront to ensure the correct parts are already waiting at our centre when your
+              device arrives via courier. For out-of-warranty repairs we also give you a fast, transparent quote before
+              any work begins.
+            </p>
+          </>
+        }
       />
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-content px-6 pb-20 pt-12 lg:px-8">

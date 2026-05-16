@@ -18,6 +18,7 @@ export type BookRepairContactPayload = {
   fullName: string;
   email: string;
   phone: string;
+  alternativePhone: string;
   line1: string;
   line2: string;
   city: string;
@@ -45,6 +46,9 @@ export type WarrantyCheckResponse = {
   next_action: "warranty_intake" | "out_of_warranty_quote";
   /** Empty when live ERP returned the result; otherwise explains placeholder or degraded mode. */
   disclaimer: string;
+  purchase_date?: string | null;
+  warranty_months?: number | null;
+  brand?: string | null;
 };
 
 export type QuoteLine = {
@@ -69,6 +73,26 @@ export type QuoteResponse = {
   device: DeviceCatalog | null;
   imei: string | null;
 };
+
+/** Placeholder quote when the pricing step is deferred until after intake. */
+export function deferredQuotePlaceholder(warranty: WarrantyCheckResponse): QuoteResponse {
+  return {
+    quote_mode: warranty.in_warranty ? "warranty_channel" : "out_of_warranty",
+    currency: "ZAR",
+    vat_rate: 0.15,
+    lines: [],
+    subtotal_cents: 0,
+    vat_cents: 0,
+    total_cents: 0,
+    summary: warranty.in_warranty
+      ? "Warranty repairs are priced after inspection."
+      : "Out-of-warranty pricing will be provided later in the process.",
+    disclaimer: "Quote step skipped during online booking.",
+    source: "deferred",
+    device: warranty.device,
+    imei: warranty.imei,
+  };
+}
 
 export function formatZarFromCents(cents: number): string {
   return new Intl.NumberFormat("en-ZA", {

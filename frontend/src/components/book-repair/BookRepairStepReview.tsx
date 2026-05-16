@@ -9,7 +9,12 @@ import {
   type QuoteResponse,
   type WarrantyCheckResponse,
 } from "@/lib/booking";
-import type { BookRepairStep1Payload } from "./BookRepairStep1";
+import {
+  step1DeviceNoteForIssue,
+  step1DeviceReviewDetails,
+  step1SubmitDeviceFields,
+  type BookRepairStep1Payload,
+} from "@/lib/bookRepairMakes";
 
 export type BookingSubmitResult = {
   job_reference: string;
@@ -50,22 +55,31 @@ export function BookRepairStepReview({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const deviceDetails = step1DeviceReviewDetails(step1, warranty.device ?? quote.device);
+
   async function submit() {
     if (!agreed) return;
     setLoading(true);
     setError(null);
     try {
+      const deviceFields = step1SubmitDeviceFields(step1);
+      const deviceNote = step1DeviceNoteForIssue(step1);
+      const issueDescription = deviceNote
+        ? `${deviceNote}\n\n${issue.description}`.trim()
+        : issue.description;
+
       const body = {
-        device_catalog_id: step1.mode === "catalog" ? step1.device.id : null,
-        imei: step1.mode === "imei" ? step1.imei : "",
+        device_catalog_id: deviceFields.device_catalog_id,
+        imei: deviceFields.imei,
         issue_category_id: issue.categoryId,
         issue_fault_code_id: issue.faultCodeId,
-        issue_description: issue.description,
+        issue_description: issueDescription,
         warranty,
         quote,
         customer_name: contact.fullName,
         customer_email: contact.email,
         customer_phone: contact.phone,
+        customer_alt_phone: contact.alternativePhone,
         shipping_line1: contact.line1,
         shipping_line2: contact.line2,
         shipping_city: contact.city,
@@ -125,7 +139,7 @@ export function BookRepairStepReview({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <h2 className="font-serif text-xl font-medium text-slate-900 md:text-2xl">
-        Step 7 — Review &amp; confirm
+        Step 6 — Review &amp; confirm
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-600">
         Check everything below. Submitting creates your repair intake and stores a structured record
@@ -135,14 +149,34 @@ export function BookRepairStepReview({
       <div className="mt-8 space-y-6 text-sm">
         <section className="rounded-xl border border-slate-100 bg-[#f8fafc] px-4 py-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Device</h3>
-          {step1.mode === "catalog" ? (
-            <p className="mt-1 text-slate-800">
-              {step1.device.brand} · {step1.device.model_name}
-              {step1.device.sku ? ` · SKU ${step1.device.sku}` : ""}
+          <dl className="mt-2 space-y-1.5 text-slate-800">
+            <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Make</dt>
+              <dd>{deviceDetails.make ?? "—"}</dd>
+            </div>
+            <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Model</dt>
+              <dd>{deviceDetails.model ?? "—"}</dd>
+            </div>
+            {deviceDetails.imei ? (
+              <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+                <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">IMEI</dt>
+                <dd className="font-mono text-sm">{deviceDetails.imei}</dd>
+              </div>
+            ) : null}
+            {deviceDetails.sku ? (
+              <div className="flex flex-wrap gap-x-2 gap-y-0.5">
+                <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">SKU</dt>
+                <dd className="font-mono text-sm">{deviceDetails.sku}</dd>
+              </div>
+            ) : null}
+          </dl>
+          {!deviceDetails.make && !deviceDetails.model ? (
+            <p className="mt-2 text-xs text-amber-800">
+              Make and model were not captured in step 1. Go back and select your device make and model
+              for accurate intake and risk checks.
             </p>
-          ) : (
-            <p className="mt-1 font-mono text-slate-800">IMEI {step1.imei}</p>
-          )}
+          ) : null}
         </section>
 
         <section className="rounded-xl border border-slate-100 bg-[#f8fafc] px-4 py-3">
@@ -170,7 +204,17 @@ export function BookRepairStepReview({
             Warranty: {warranty.in_warranty ? "In warranty" : "Out of warranty"}
             {warranty.source === "erp_live" ? " (connected system)" : ""}
           </p>
-          {quote.quote_mode === "warranty_channel" ? (
+          {warranty.purchase_date ? (
+            <p className="mt-1 text-xs text-slate-600">
+              Date of purchase: {warranty.purchase_date}
+              {warranty.warranty_months
+                ? ` · ${warranty.warranty_months}-month OEM period`
+                : ""}
+            </p>
+          ) : null}
+          {quote.source === "deferred" || quote.total_cents === 0 ? (
+            <p className="mt-2 text-slate-700">{quote.summary}</p>
+          ) : quote.quote_mode === "warranty_channel" ? (
             <p className="mt-2 text-slate-700">{quote.summary}</p>
           ) : (
             <p className="mt-2 font-medium text-slate-900">
@@ -205,6 +249,9 @@ export function BookRepairStepReview({
           <p className="mt-1 text-slate-800">{contact.fullName}</p>
           <p className="text-slate-700">{contact.email}</p>
           {contact.phone ? <p className="text-slate-700">{contact.phone}</p> : null}
+          {contact.alternativePhone ? (
+            <p className="text-slate-700">Alt: {contact.alternativePhone}</p>
+          ) : null}
           <p className="mt-2 text-slate-700">
             {contact.line1}
             {contact.line2 ? `, ${contact.line2}` : ""}
@@ -245,7 +292,7 @@ export function BookRepairStepReview({
           disabled={loading}
           className="text-sm font-medium text-slate-600 hover:text-slate-900 disabled:opacity-50"
         >
-          ← Back to details
+          ← Back to documents
         </button>
         <button
           type="button"
