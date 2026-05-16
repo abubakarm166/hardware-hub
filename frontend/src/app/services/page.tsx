@@ -9,7 +9,7 @@ import { fetchDevices } from "@/lib/api";
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Precision, perfection and premium device repair and protection services for consumers, entrepreneurs and businesses across South Africa.",
+    "Next-gen repair services built for clarity — ISO-aligned mobile device repair and aftersales for consumers, entrepreneurs and businesses across South Africa.",
 };
 
 const roadmapItems = [
@@ -25,7 +25,8 @@ export default async function ServicesPage() {
     <>
       <PageHero
         eyebrow="Services"
-        title={<span className="text-brand">Services</span>}
+        title="Next-gen repair services built for clarity."
+        description="Hardware Hub is a next-generation mobile device repair and aftersales services company, purpose-built for scale, compliance, and trust. We operate a best-in-class, ISO-aligned high-volume workshop that redefines service excellence through precision, transparency, and customer-centric delivery."
       />
 
       <div className="border-b border-slate-200 bg-white">
