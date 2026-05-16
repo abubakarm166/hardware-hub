@@ -41,7 +41,7 @@ def stub_warranty_result(
     else:
         summary = (
             "No active manufacturer warranty found on file (placeholder logic). "
-            "You can continue to an automated out-of-warranty quote in the next step."
+            "You can continue to upload documents in the next step."
         )
         next_action = "out_of_warranty_quote"
 

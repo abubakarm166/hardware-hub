@@ -140,7 +140,15 @@ class WarrantyCheckView(APIView):
         if imei_digits == "":
             imei_digits = None
 
-        outcome = resolve_warranty_check(device=device, imei_digits=imei_digits)
+        purchase_date = vd.get("purchase_date")
+        brand = (vd.get("brand") or "").strip() or (device.brand if device else "")
+
+        outcome = resolve_warranty_check(
+            device=device,
+            imei_digits=imei_digits,
+            purchase_date=purchase_date,
+            brand=brand or None,
+        )
         if outcome.error:
             return Response({"detail": outcome.error}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -153,6 +161,9 @@ class WarrantyCheckView(APIView):
             "summary": outcome.summary,
             "next_action": outcome.next_action,
             "disclaimer": outcome.disclaimer,
+            "purchase_date": outcome.purchase_date,
+            "warranty_months": outcome.warranty_months,
+            "brand": outcome.brand,
         }
         return Response(payload, status=status.HTTP_200_OK)
 
@@ -313,8 +324,8 @@ def _repair_timeline(job: RepairJob) -> list[dict]:
 
 class TrackLookupView(APIView):
     """
-    Authenticated-style lookup: job reference + email must match RepairJob.customer_email.
-    Returns 404 for any mismatch (avoid leaking whether a reference exists).
+    Privacy-preserving lookup: job reference *or* IMEI, plus email, must match the repair job.
+    Returns 404 for any mismatch (avoid leaking whether a reference or IMEI exists).
     """
 
     authentication_classes = []
@@ -324,21 +335,31 @@ class TrackLookupView(APIView):
     def post(self, request):
         serializer = TrackLookupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        ref = serializer.validated_data["job_reference"].strip()
+        mode, key = serializer.validated_data["_lookup"]
         email = serializer.validated_data["email"].strip().lower()
 
-        job = (
-            RepairJob.objects.filter(job_reference__iexact=ref)
-            .exclude(status=RepairJob.Status.DRAFT)
-            .select_related("device")
-            .first()
-        )
+        if mode == "ref":
+            job = (
+                RepairJob.objects.filter(job_reference__iexact=key)
+                .exclude(status=RepairJob.Status.DRAFT)
+                .select_related("device")
+                .first()
+            )
+        else:
+            job = (
+                RepairJob.objects.filter(imei=key)
+                .exclude(status=RepairJob.Status.DRAFT)
+                .select_related("device")
+                .order_by("-created_at")
+                .first()
+            )
+
         stored = (job.customer_email or "").strip().lower() if job else ""
         if job is None or not stored or stored != email:
             return Response(
                 {
-                    "detail": "No repair found for this reference and email. "
-                    "Check your details or contact us."
+                    "detail": "No repair found for these details. "
+                    "Check your job reference or IMEI and the email on your booking, or contact us."
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
@@ -797,6 +818,7 @@ class BookingSubmitView(APIView):
         email = vd["customer_email"].strip().lower()
         name = vd["customer_name"].strip()
         phone = (vd.get("customer_phone") or "").strip()
+        alt_phone = (vd.get("customer_alt_phone") or "").strip()
 
         payload = {
             "schema_version": 1,
@@ -820,6 +842,7 @@ class BookingSubmitView(APIView):
                 "full_name": name,
                 "email": email,
                 "phone": phone or None,
+                "alt_phone": alt_phone or None,
             },
             "shipping_address": {
                 "line1": vd["shipping_line1"].strip(),
@@ -837,6 +860,7 @@ class BookingSubmitView(APIView):
             category=cat,
             fault=fault,
             description=description,
+            alt_phone=alt_phone,
         )
 
         try:

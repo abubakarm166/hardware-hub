@@ -25,6 +25,7 @@ def build_workshop_notes(
     category: RepairIssueCategory,
     fault: RepairFaultCode,
     description: str,
+    alt_phone: str = "",
 ) -> str:
     lines = [
         "— Web booking intake —",
@@ -33,6 +34,8 @@ def build_workshop_notes(
     ]
     if description.strip():
         lines.append(f"Customer description: {description.strip()}")
+    if alt_phone.strip():
+        lines.append(f"Alternative contact: {alt_phone.strip()}")
     if device:
         lines.append(f"Device: {device.brand} {device.model_name}" + (f" (SKU {device.sku})" if device.sku else ""))
     if imei:

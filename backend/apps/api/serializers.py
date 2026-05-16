@@ -35,7 +35,7 @@ class RepairJobPublicSerializer(serializers.ModelSerializer):
 
 
 class WarrantyCheckInputSerializer(serializers.Serializer):
-    """Step 2 input: device from catalog and/or IMEI (external warranty / ERP check)."""
+    """Step 4 input: device, IMEI, and optional purchase date for OEM warranty rules."""
 
     device_catalog_id = serializers.IntegerField(required=False, min_value=1)
     imei = serializers.CharField(
@@ -44,6 +44,8 @@ class WarrantyCheckInputSerializer(serializers.Serializer):
         default="",
         max_length=32,
     )
+    brand = serializers.CharField(required=False, allow_blank=True, default="")
+    purchase_date = serializers.DateField(required=False, allow_null=True)
 
     def validate_imei(self, value: str) -> str:
         if not (value or "").strip():
@@ -96,7 +98,18 @@ class ContactMessageCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContactMessage
-        fields = ("id", "name", "email", "phone", "message", "created_at", "website")
+        fields = (
+            "id",
+            "name",
+            "email",
+            "phone",
+            "company_name",
+            "region",
+            "lead_type",
+            "message",
+            "created_at",
+            "website",
+        )
         read_only_fields = ("id", "created_at")
 
     def validate_website(self, value: str) -> str:
@@ -116,8 +129,25 @@ class ContactMessageCreateSerializer(serializers.ModelSerializer):
 
 
 class TrackLookupSerializer(serializers.Serializer):
-    job_reference = serializers.CharField(max_length=32)
+    job_reference = serializers.CharField(max_length=32, required=False, allow_blank=True)
+    imei = serializers.CharField(required=False, allow_blank=True)
     email = serializers.EmailField()
+
+    def validate(self, attrs: dict) -> dict:
+        ref = (attrs.get("job_reference") or "").strip()
+        imei_raw = (attrs.get("imei") or "").strip()
+        digits = "".join(c for c in imei_raw if c.isdigit())
+        if ref and imei_raw:
+            raise serializers.ValidationError("Provide either a job reference or an IMEI, not both.")
+        if ref:
+            attrs["_lookup"] = ("ref", ref)
+        elif len(digits) == 15:
+            attrs["_lookup"] = ("imei", digits)
+        else:
+            raise serializers.ValidationError(
+                "Enter your job reference or a 15-digit IMEI, together with the email on your booking."
+            )
+        return attrs
 
 
 class PartnerBulkRmaSerializer(serializers.Serializer):
@@ -251,6 +281,7 @@ class BookingSubmitSerializer(serializers.Serializer):
     customer_name = serializers.CharField(max_length=200)
     customer_email = serializers.EmailField()
     customer_phone = serializers.CharField(required=False, allow_blank=True, default="")
+    customer_alt_phone = serializers.CharField(required=False, allow_blank=True, default="")
     shipping_line1 = serializers.CharField(max_length=200)
     shipping_line2 = serializers.CharField(required=False, allow_blank=True, default="")
     shipping_city = serializers.CharField(max_length=120)

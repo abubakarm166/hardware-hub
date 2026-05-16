@@ -226,6 +226,9 @@ class ContactMessage(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
     phone = models.CharField(max_length=32, blank=True)
+    company_name = models.CharField(max_length=200, blank=True)
+    region = models.CharField(max_length=120, blank=True, help_text="Province / state.")
+    lead_type = models.CharField(max_length=128, blank=True, help_text="Segment / role (dropdown).")
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

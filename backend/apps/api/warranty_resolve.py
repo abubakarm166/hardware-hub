@@ -11,6 +11,7 @@ import json
 import logging
 import ssl
 from dataclasses import dataclass
+from datetime import date
 from http.client import HTTPResponse
 from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError, URLError
@@ -18,6 +19,7 @@ from urllib.request import Request, urlopen
 
 from django.conf import settings
 
+from .warranty_oem import check_oem_warranty_from_purchase
 from .warranty_stub import stub_warranty_result
 
 if TYPE_CHECKING:
@@ -38,6 +40,9 @@ class WarrantyCheckOutcome:
     source: str
     disclaimer: str
     error: str | None = None
+    purchase_date: str | None = None
+    warranty_months: int | None = None
+    brand: str | None = None
 
 
 def _build_request_payload(
@@ -136,13 +141,22 @@ def resolve_warranty_check(
     *,
     device: DeviceCatalog | None,
     imei_digits: str | None,
+    purchase_date: date | None = None,
+    brand: str | None = None,
 ) -> WarrantyCheckOutcome:
     """
-    Call configured warranty URL when set; otherwise use the local stub.
+    Call configured warranty URL when set; otherwise OEM purchase-date rules or local stub.
     """
     api_url = getattr(settings, "ERP_WARRANTY_API_URL", "") or ""
     fallback_stub = bool(getattr(settings, "ERP_WARRANTY_FALLBACK_STUB", True))
     payload = _build_request_payload(device=device, imei_digits=imei_digits)
+    if purchase_date is not None:
+        payload["purchase_date"] = purchase_date.isoformat()
+    if brand:
+        payload["brand"] = brand.strip()
+
+    resolved_brand = (brand or "").strip() or (device.brand if device else "")
+    purchase_iso = purchase_date.isoformat() if purchase_date else None
 
     if api_url:
         raw = _post_erp_warranty(payload)
@@ -156,6 +170,8 @@ def resolve_warranty_check(
                     next_action=na,
                     source=SOURCE_ERP_LIVE,
                     disclaimer="",
+                    purchase_date=purchase_iso,
+                    brand=resolved_brand or None,
                 )
             logger.warning("ERP warranty endpoint returned JSON we could not parse: %s", raw.keys())
         if not fallback_stub:
@@ -167,26 +183,68 @@ def resolve_warranty_check(
                 disclaimer="",
                 error="Warranty service is temporarily unavailable. Please try again later.",
             )
-        iw, summary, na = stub_warranty_result(device=device, imei_digits=imei_digits)
-        return WarrantyCheckOutcome(
-            in_warranty=iw,
-            summary=summary,
-            next_action=na,
-            source=SOURCE_STUB,
+        return _fallback_outcome(
+            device=device,
+            imei_digits=imei_digits,
+            purchase_date=purchase_date,
+            brand=resolved_brand,
+            purchase_iso=purchase_iso,
             disclaimer=(
                 "The external warranty service did not return a valid response. "
                 "Showing a temporary offline result — retry or contact support."
             ),
         )
 
+    return _fallback_outcome(
+        device=device,
+        imei_digits=imei_digits,
+        purchase_date=purchase_date,
+        brand=resolved_brand,
+        purchase_iso=purchase_iso,
+        disclaimer=(
+            "No warranty API is configured yet. Set ERP_WARRANTY_API_URL (or WARRANTY_PROVIDER_API_URL) "
+            "when your ERP or middleware endpoint is ready."
+        ),
+    )
+
+
+def _fallback_outcome(
+    *,
+    device: DeviceCatalog | None,
+    imei_digits: str | None,
+    purchase_date: date | None,
+    brand: str,
+    purchase_iso: str | None,
+    disclaimer: str,
+) -> WarrantyCheckOutcome:
+    if purchase_date is not None and brand.strip():
+        iw, summary, months = check_oem_warranty_from_purchase(
+            brand=brand, purchase_date=purchase_date
+        )
+        na = "warranty_intake" if iw else "out_of_warranty_quote"
+        return WarrantyCheckOutcome(
+            in_warranty=iw,
+            summary=summary,
+            next_action=na,
+            source=SOURCE_STUB,
+            disclaimer=disclaimer,
+            purchase_date=purchase_iso,
+            warranty_months=months or None,
+            brand=brand.strip() or None,
+        )
+
     iw, summary, na = stub_warranty_result(device=device, imei_digits=imei_digits)
+    if not iw:
+        summary = (
+            "No active manufacturer warranty found on file (placeholder logic). "
+            "You can continue to upload documents in the next step."
+        )
     return WarrantyCheckOutcome(
         in_warranty=iw,
         summary=summary,
         next_action=na,
         source=SOURCE_STUB,
-        disclaimer=(
-            "No warranty API is configured yet. Set ERP_WARRANTY_API_URL (or WARRANTY_PROVIDER_API_URL) "
-            "when your ERP or middleware endpoint is ready."
-        ),
+        disclaimer=disclaimer,
+        purchase_date=purchase_iso,
+        brand=brand.strip() or None,
     )

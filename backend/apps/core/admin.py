@@ -84,9 +84,9 @@ class RepairJobAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "phone", "created_at")
-    list_filter = ("created_at",)
-    search_fields = ("name", "email", "message")
+    list_display = ("name", "email", "company_name", "region", "lead_type", "phone", "created_at")
+    list_filter = ("created_at", "region", "lead_type")
+    search_fields = ("name", "email", "company_name", "message", "lead_type")
     readonly_fields = ("created_at",)
 
 
