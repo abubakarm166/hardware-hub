@@ -34,7 +34,9 @@ export default function ContactPage() {
                   Address
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  Placeholder address
+                  Building 7, Burnside Office Park
+                  <br />
+                  Craighall, 2196
                   <br />
                   South Africa
                 </p>
@@ -43,7 +45,7 @@ export default function ContactPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
                   Hours
                 </p>
-                <p className="mt-2 text-sm text-slate-600">Business hours · SAST</p>
+                <p className="mt-2 text-sm text-slate-600">08:00 – 16:30 · SAST</p>
               </div>
             </div>
 

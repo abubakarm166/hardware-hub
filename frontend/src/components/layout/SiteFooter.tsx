@@ -51,7 +51,7 @@ export function SiteFooter() {
             Let&apos;s Connect
           </p>
           <p className="mt-4 text-sm text-white/70">
-            Placeholder address, South Africa
+            Building 7, Burnside Office Park, Craighall, 2196, South Africa
             <br />
             <a href="mailto:info@hardware-hub.co.za" className="text-white hover:underline">
               info@hardware-hub.co.za
