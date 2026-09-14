@@ -29,6 +29,13 @@ Set these on the **backend** service (not on the Next.js project). Copy names fr
 | `CORS_ALLOWED_ORIGINS` | Yes | Your **frontend** URL(s), `https://...`, **no** trailing slash. Example: `https://hardware-hub-d14w.vercel.app` |
 | `DATABASE_URL` | Recommended | PostgreSQL URL from the host’s DB plugin (Neon, Railway Postgres, Render Postgres). **Easiest for production.** |
 | `USE_SQLITE` | If no Postgres | `true` only if the platform gives a **persistent disk** and your SQLite path is writable (some PaaS need a volume). |
+| `EMAIL_HOST_USER` | For email | Gmail address that sends the notifications, e.g. `yourname@gmail.com`. |
+| `EMAIL_HOST_PASSWORD` | For email | Gmail **App Password** (16 characters), **not** the account password. Requires 2-Step Verification. |
+| `CONTACT_NOTIFICATION_EMAIL` | No | Where enquiries are delivered. Defaults to `info@hardware-hub.co.za`. |
+| `EMAIL_HOST` / `EMAIL_PORT` / `EMAIL_USE_TLS` | No | Default to `smtp.gmail.com` / `587` / `true`. Change only for a non-Gmail provider. |
+| `DEFAULT_FROM_EMAIL` | No | "From" address. Defaults to `EMAIL_HOST_USER`. |
+
+**Email is optional.** With `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` unset, contact submissions are still saved and visible in the admin — they are written to the server log instead of emailed.
 
 **After deploy:** run migrations once (see §6).
 
