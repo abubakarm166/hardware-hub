@@ -35,6 +35,7 @@ from apps.core.models import (
 
 from .booking_attachments import validate_booking_files
 from .booking_intake import allocate_consumer_job_reference, build_workshop_notes
+from .contact_notify import send_contact_notification
 from .partner_audit import log_partner_action
 from .partner_bulk import process_bulk_rma_csv
 from .partner_permissions import IsPartnerAdmin, IsPartnerUser
@@ -111,6 +112,10 @@ class ContactMessageCreateView(generics.CreateAPIView):
     serializer_class = ContactMessageCreateSerializer
     authentication_classes = []
     permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        message = serializer.save()
+        send_contact_notification(message)
 
 
 class WarrantyCheckView(APIView):
