@@ -290,6 +290,28 @@ ERP_WARRANTY_FALLBACK_STUB = _first_env_bool(
     default=True,
 )
 
+# --- Email (contact form notifications) ---
+# Gmail requires an App Password here, not the account password, and 2FA must be on.
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com").strip()
+EMAIL_PORT = _first_env_int("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = _first_env_bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "").strip()
+# Google displays app passwords in four spaced blocks; SMTP auth fails unless the spaces go.
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "").replace(" ", "")
+EMAIL_TIMEOUT = _first_env_int("EMAIL_TIMEOUT", default=15)
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "").strip() or EMAIL_HOST_USER
+
+# Where new website contact submissions are delivered.
+CONTACT_NOTIFICATION_EMAIL = os.environ.get(
+    "CONTACT_NOTIFICATION_EMAIL", "info@hardware-hub.co.za"
+).strip()
+
+# Unconfigured deploys log the email instead of raising on every submission.
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 # Backward compatibility for code or docs that still reference VISION_* on settings.
 VISION_WARRANTY_API_URL = ERP_WARRANTY_API_URL
 VISION_WARRANTY_API_KEY = ERP_WARRANTY_API_KEY
